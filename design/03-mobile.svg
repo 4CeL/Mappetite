@@ -1,0 +1,239 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="880" viewBox="0 0 1200 880" role="img" aria-label="Mockup Mappetite mobile: Peta, Daftar, dan Detail Restoran">
+<defs>
+<style>text{font-family:'Plus Jakarta Sans','Inter','Segoe UI',Arial,sans-serif}</style>
+<filter id="sh" x="-20%" y="-30%" width="140%" height="170%"><feDropShadow dx="0" dy="3" stdDeviation="6" flood-color="#293220" flood-opacity="0.10"/></filter>
+<filter id="shUp" x="-10%" y="-20%" width="120%" height="140%"><feDropShadow dx="0" dy="-4" stdDeviation="10" flood-color="#293220" flood-opacity="0.12"/></filter>
+<filter id="shPhone" x="-10%" y="-10%" width="120%" height="120%"><feDropShadow dx="0" dy="16" stdDeviation="20" flood-color="#293220" flood-opacity="0.22"/></filter>
+<symbol id="tiles" viewBox="0 0 800 700" preserveAspectRatio="xMidYMid slice">
+<rect width="800" height="700" fill="#EDEEE4"/>
+<rect x="90" y="330" width="140" height="100" rx="10" fill="#D9EED8" transform="rotate(-8 160 380)"/>
+<rect x="420" y="40" width="170" height="90" rx="10" fill="#D9EED8" transform="rotate(-8 505 85)"/>
+<rect x="560" y="470" width="110" height="120" rx="10" fill="#D9EED8" transform="rotate(-8 615 530)"/>
+<g transform="rotate(-8 400 350)" fill="none" stroke="#FFFFFF" stroke-width="5">
+<path d="M-200 -24H1000M-200 40H1000M-200 104H1000M-200 168H1000M-200 232H1000M-200 296H1000M-200 360H1000M-200 424H1000M-200 488H1000M-200 552H1000M-200 616H1000M-200 680H1000M-200 744H1000"/>
+<path d="M-52 -200V900M20 -200V900M92 -200V900M164 -200V900M236 -200V900M308 -200V900M380 -200V900M452 -200V900M524 -200V900M596 -200V900M668 -200V900M740 -200V900M812 -200V900"/>
+</g>
+<g fill="none" stroke-linecap="round">
+<path d="M-20 260C200 240 500 210 820 160M260 -20C280 200 300 450 330 720M-20 570C300 530 520 550 820 480" stroke="#DDE2E8" stroke-width="15"/>
+<path d="M-20 260C200 240 500 210 820 160M260 -20C280 200 300 450 330 720M-20 570C300 530 520 550 820 480" stroke="#FFFFFF" stroke-width="11"/>
+</g>
+<path d="M620 -10C600 80 650 170 820 190V-10Z" fill="#CFE3F5"/>
+<path d="M-10 640C80 600 160 650 230 710H-10Z" fill="#CFE3F5"/>
+</symbol>
+<g id="pinB"><path d="M0 0C-4-10-16-18-16-28A16 16 0 1 1 16-28C16-18 4-10 0 0Z" fill="#5D6C4B" stroke="#fff" stroke-width="2"/><circle cx="0" cy="-28" r="6" fill="#fff"/></g>
+<g id="pinG"><path d="M0 0C-4-10-16-18-16-28A16 16 0 1 1 16-28C16-18 4-10 0 0Z" fill="#D97745" stroke="#fff" stroke-width="2"/><path d="M-6-28l4 4 8-8" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></g>
+<g id="star"><polygon points="0,-6 1.76,-2.43 5.71,-1.85 2.85,0.93 3.53,4.85 0,3 -3.53,4.85 -2.85,0.93 -5.71,-1.85 -1.76,-2.43" fill="#F5A524"/></g>
+<g id="starOff"><polygon points="0,-6 1.76,-2.43 5.71,-1.85 2.85,0.93 3.53,4.85 0,3 -3.53,4.85 -2.85,0.93 -5.71,-1.85 -1.76,-2.43" fill="#E4E0D3"/></g>
+<g id="chk"><path d="M-4 0l3 3 5-5" fill="none" stroke="#9A4A26" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></g>
+<g id="icCoffee"><path d="M-14-6h22v10a10 10 0 0 1-10 10h-2a10 10 0 0 1-10-10z" fill="#8B5E3C"/><path d="M8-2h3a5 5 0 0 1 0 10h-3" fill="none" stroke="#8B5E3C" stroke-width="3"/><path d="M-8-11c-2-3 2-5 0-8M-2-11c-2-3 2-5 0-8M4-11c-2-3 2-5 0-8" fill="none" stroke="#C49A6C" stroke-width="2" stroke-linecap="round"/></g>
+<g id="icRamen"><path d="M-20-2h40a20 18 0 0 1-40 0z" fill="#E4572E"/><rect x="-10" y="15" width="20" height="4" rx="2" fill="#E4572E"/><path d="M-6-6L14-22M0-6L18-18" stroke="#8B5E3C" stroke-width="2.5" stroke-linecap="round"/><path d="M-12-5c2-4 6-4 8 0s6 4 8 0" fill="none" stroke="#F4B183" stroke-width="2"/></g>
+<g id="icBakmi"><path d="M-20-2h40a20 18 0 0 1-40 0z" fill="#D97706"/><rect x="-10" y="15" width="20" height="4" rx="2" fill="#D97706"/><path d="M-6-6L14-22M0-6L18-18" stroke="#8B5E3C" stroke-width="2.5" stroke-linecap="round"/><path d="M-12-5c2-4 6-4 8 0s6 4 8 0" fill="none" stroke="#FCD34D" stroke-width="2"/></g>
+<g id="icSate"><path d="M-18 16L18-16M-10 18L20-10" stroke="#B08968" stroke-width="2.5" stroke-linecap="round"/><circle cx="-6" cy="5.3" r="5" fill="#B5452C"/><circle cx="2" cy="-1.8" r="5" fill="#B5452C"/><circle cx="10" cy="-8.9" r="5" fill="#B5452C"/><circle cx="0" cy="8.7" r="5" fill="#C2562F"/><circle cx="8" cy="1.2" r="5" fill="#C2562F"/></g>
+<g id="statusbar"><text x="28" y="28" font-size="13" font-weight="700" fill="#293220">9:41</text><rect x="276" y="19" width="3" height="8" rx="1" fill="#293220"/><rect x="281" y="16" width="3" height="11" rx="1" fill="#293220"/><rect x="286" y="13" width="3" height="14" rx="1" fill="#293220"/><rect x="306" y="15" width="24" height="12" rx="3" fill="none" stroke="#293220" stroke-width="1.5"/><rect x="309" y="18" width="16" height="6" rx="1" fill="#293220"/></g>
+<clipPath id="phoneClip"><rect width="360" height="780" rx="40"/></clipPath>
+<clipPath id="halfL"><rect x="-6" y="-6" width="6" height="12"/></clipPath>
+</defs>
+
+<rect width="1200" height="880" fill="#E9EDF2"/>
+<text x="30" y="34" font-size="15" font-weight="700" fill="#293220">1. Peta (beranda)</text>
+<text x="420" y="34" font-size="15" font-weight="700" fill="#293220">2. Daftar</text>
+<text x="810" y="34" font-size="15" font-weight="700" fill="#293220">3. Detail restoran</text>
+
+<!-- ===== Phone 1: Peta ===== -->
+<g transform="translate(30 60)">
+<rect x="-8" y="-8" width="376" height="796" rx="48" fill="#293220" filter="url(#shPhone)"/>
+<g clip-path="url(#phoneClip)">
+<use href="#tiles" x="0" y="0" width="360" height="780"/>
+<rect width="360" height="40" fill="#fff" opacity=".85"/>
+<use href="#statusbar"/>
+
+<rect x="16" y="52" width="328" height="48" rx="24" fill="#fff" filter="url(#sh)"/>
+<g transform="translate(40 76)" fill="none" stroke="#5F6D54" stroke-width="2" stroke-linecap="round"><circle cx="-1" cy="-1" r="6.5"/><path d="M4 4l5 5"/></g>
+<text x="58" y="81" font-size="14" fill="#5F6D54">Cari restoran…</text>
+<circle cx="318" cy="76" r="18" fill="#5D6C4B"/>
+<g stroke="#fff" stroke-width="2" stroke-linecap="round"><path d="M310 71H326M310 81H326"/><circle cx="314" cy="71" r="2.5" fill="#5D6C4B"/><circle cx="322" cy="81" r="2.5" fill="#5D6C4B"/></g>
+
+<g font-size="12" font-weight="600">
+<rect x="16" y="112" width="72" height="32" rx="16" fill="#293220"/><text x="52" y="133" fill="#fff" text-anchor="middle">Semua</text>
+<rect x="96" y="112" width="64" height="32" rx="16" fill="#fff" filter="url(#sh)"/><circle cx="112" cy="128" r="4" fill="#5D6C4B"/><text x="122" y="133" fill="#3F4A32">Ingin</text>
+<rect x="168" y="112" width="72" height="32" rx="16" fill="#fff" filter="url(#sh)"/><circle cx="184" cy="128" r="4" fill="#D97745"/><text x="194" y="133" fill="#3F4A32">Sudah</text>
+<rect x="248" y="112" width="58" height="32" rx="16" fill="#fff" filter="url(#sh)"/><text x="277" y="133" fill="#3F4A32" text-anchor="middle">Kopi</text>
+<rect x="314" y="112" width="72" height="32" rx="16" fill="#fff" filter="url(#sh)"/><text x="350" y="133" fill="#3F4A32" text-anchor="middle">Ramen</text>
+</g>
+
+<circle cx="200" cy="470" r="50" fill="#5D6C4B" opacity=".08"/>
+<circle cx="200" cy="470" r="7" fill="#5D6C4B" stroke="#fff" stroke-width="3"/>
+
+<use href="#pinB" x="90" y="262"/>
+<rect x="104" y="226" width="96" height="26" rx="8" fill="#fff" filter="url(#sh)"/>
+<text x="114" y="243" font-size="11.5" font-weight="600" fill="#293220">Sate Taichan</text>
+<use href="#pinB" x="110" y="440"/>
+<rect x="124" y="404" width="84" height="26" rx="8" fill="#fff" filter="url(#sh)"/>
+<text x="134" y="421" font-size="11.5" font-weight="600" fill="#293220">Kopi Senja</text>
+<use href="#pinG" x="300" y="470"/>
+<use href="#pinB" x="56" y="500"/>
+<ellipse cx="220" cy="352" rx="10" ry="4" fill="#293220" opacity=".18"/>
+<use href="#pinG" transform="translate(220 350) scale(1.25)"/>
+<rect x="240" y="300" width="104" height="28" rx="8" fill="#293220"/>
+<text x="250" y="318" font-size="12" font-weight="700" fill="#fff">Ramen Hokkori</text>
+
+<rect y="520" width="360" height="300" rx="24" fill="#fff" filter="url(#shUp)"/>
+<rect x="160" y="532" width="40" height="4" rx="2" fill="#D9D4C4"/>
+<rect x="20" y="552" width="72" height="72" rx="12" fill="#FDE8E1"/>
+<use href="#icRamen" transform="translate(56 590) scale(.8)"/>
+<text x="106" y="574" font-size="16" font-weight="700" fill="#293220">Ramen Hokkori</text>
+<text x="106" y="594" font-size="12" fill="#5F6D54">Blok M · 2,7 km</text>
+<rect x="106" y="604" width="64" height="22" rx="11" fill="#FBE7DB"/><use href="#chk" x="120" y="615"/>
+<text x="148" y="619" font-size="11" font-weight="700" fill="#9A4A26" text-anchor="middle">Sudah</text>
+<use href="#star" x="186" y="615"/><text x="195" y="619" font-size="12" font-weight="700" fill="#293220">4,5</text>
+<rect x="20" y="640" width="156" height="44" rx="12" fill="#fff" stroke="#D9D4C4"/>
+<text x="98" y="667" font-size="14" font-weight="700" fill="#293220" text-anchor="middle">Detail</text>
+<rect x="184" y="640" width="156" height="44" rx="12" fill="#5D6C4B"/>
+<text x="262" y="667" font-size="14" font-weight="700" fill="#fff" text-anchor="middle">Rute di Maps ↗</text>
+
+<rect y="700" width="360" height="80" fill="#fff"/>
+<rect y="700" width="360" height="1" fill="#E4E0D3"/>
+<g transform="translate(45 726)" fill="none" stroke="#5D6C4B" stroke-width="2" stroke-linejoin="round"><path d="M-10-7l6-3 8 3 6-3v17l-6 3-8-3-6 3z"/><path d="M-4-10v17M4-7v17"/></g>
+<text x="45" y="756" font-size="11" font-weight="700" fill="#3F4A32" text-anchor="middle">Peta</text>
+<g transform="translate(135 726)" stroke="#5F6D54" stroke-width="2" stroke-linecap="round"><path d="M-4-6h12M-4 0h12M-4 6h12"/><circle cx="-9" cy="-6" r="1.2" fill="#5F6D54"/><circle cx="-9" cy="0" r="1.2" fill="#5F6D54"/><circle cx="-9" cy="6" r="1.2" fill="#5F6D54"/></g>
+<text x="135" y="756" font-size="11" fill="#5B6B51" text-anchor="middle">Daftar</text>
+<circle cx="225" cy="722" r="20" fill="#5D6C4B"/>
+<path d="M225 714v16M217 722h16" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>
+<text x="225" y="756" font-size="11" fill="#5B6B51" text-anchor="middle">Tambah</text>
+<g transform="translate(315 726)" fill="none" stroke="#5F6D54" stroke-width="2" stroke-linecap="round"><circle cx="0" cy="-4" r="4.5"/><path d="M-8 9a8 7 0 0 1 16 0"/></g>
+<text x="315" y="756" font-size="11" fill="#5B6B51" text-anchor="middle">Profil</text>
+<rect x="130" y="768" width="100" height="4" rx="2" fill="#293220"/>
+</g>
+</g>
+
+<!-- ===== Phone 2: Daftar ===== -->
+<g transform="translate(420 60)">
+<rect x="-8" y="-8" width="376" height="796" rx="48" fill="#293220" filter="url(#shPhone)"/>
+<g clip-path="url(#phoneClip)">
+<rect width="360" height="780" fill="#FAF6EC"/>
+<use href="#statusbar"/>
+<text x="20" y="80" font-size="22" font-weight="700" fill="#293220">Daftar Restoran</text>
+<rect x="292" y="60" width="48" height="28" rx="14" fill="#fff" stroke="#E4E0D3"/>
+<text x="316" y="79" font-size="12" font-weight="700" fill="#293220" text-anchor="middle">ID</text>
+<rect x="16" y="96" width="328" height="44" rx="12" fill="#fff" stroke="#E4E0D3"/>
+<g transform="translate(38 118)" fill="none" stroke="#5F6D54" stroke-width="2" stroke-linecap="round"><circle cx="-1" cy="-1" r="6"/><path d="M4 4l4.5 4.5"/></g>
+<text x="56" y="123" font-size="13.5" fill="#5F6D54">Cari nama, tag, area…</text>
+<rect x="16" y="152" width="328" height="36" rx="10" fill="#EFEBDD"/>
+<rect x="20" y="156" width="106" height="28" rx="8" fill="#fff" filter="url(#sh)"/>
+<g font-size="12" text-anchor="middle"><text x="73" y="174" font-weight="700" fill="#293220">Semua 24</text><text x="180" y="174" fill="#5B6B51">Ingin 18</text><text x="287" y="174" fill="#5B6B51">Sudah 6</text></g>
+<text x="20" y="214" font-size="12" fill="#5F6D54">24 restoran</text>
+<text x="340" y="214" font-size="12" font-weight="700" fill="#3F4A32" text-anchor="end">Urutkan: Terbaru ▾</text>
+
+<!-- cards -->
+<g>
+<rect x="16" y="228" width="328" height="92" rx="14" fill="#fff" filter="url(#sh)"/>
+<rect x="28" y="240" width="68" height="68" rx="10" fill="#F6EBDD"/><use href="#icCoffee" transform="translate(62 276) scale(.75)"/>
+<text x="108" y="260" font-size="14" font-weight="700" fill="#293220">Kopi Senja Kemang</text>
+<text x="108" y="278" font-size="11.5" fill="#5F6D54">Kemang · 1,2 km</text>
+<rect x="108" y="286" width="52" height="20" rx="10" fill="#E7ECDF"/><text x="134" y="300" font-size="10.5" font-weight="700" fill="#3F4A32" text-anchor="middle">Ingin</text>
+<rect x="166" y="286" width="44" height="20" rx="10" fill="#F1EFE4"/><text x="188" y="300" font-size="10.5" fill="#5B6B51" text-anchor="middle">Kopi</text>
+<path d="M323 268l6 6-6 6" fill="none" stroke="#93987F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<g>
+<rect x="16" y="330" width="328" height="92" rx="14" fill="#fff" filter="url(#sh)"/>
+<rect x="28" y="342" width="68" height="68" rx="10" fill="#FDE8E1"/><use href="#icRamen" transform="translate(62 377) scale(.75)"/>
+<text x="108" y="362" font-size="14" font-weight="700" fill="#293220">Ramen Hokkori</text>
+<text x="108" y="380" font-size="11.5" fill="#5F6D54">Blok M · 2,7 km</text>
+<rect x="108" y="388" width="52" height="20" rx="10" fill="#FBE7DB"/><text x="134" y="402" font-size="10.5" font-weight="700" fill="#9A4A26" text-anchor="middle">Sudah</text>
+<use href="#star" x="174" y="398"/><text x="183" y="402" font-size="12" font-weight="700" fill="#293220">4,5</text>
+<path d="M323 370l6 6-6 6" fill="none" stroke="#93987F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<g>
+<rect x="16" y="432" width="328" height="92" rx="14" fill="#fff" filter="url(#sh)"/>
+<rect x="28" y="444" width="68" height="68" rx="10" fill="#E3F2E6"/><use href="#icSate" transform="translate(62 478) scale(.75)"/>
+<text x="108" y="464" font-size="14" font-weight="700" fill="#293220">Sate Taichan Bang Ucup</text>
+<text x="108" y="482" font-size="11.5" fill="#5F6D54">Senayan · 3,4 km</text>
+<rect x="108" y="490" width="52" height="20" rx="10" fill="#E7ECDF"/><text x="134" y="504" font-size="10.5" font-weight="700" fill="#3F4A32" text-anchor="middle">Ingin</text>
+<rect x="166" y="490" width="46" height="20" rx="10" fill="#F1EFE4"/><text x="189" y="504" font-size="10.5" fill="#5B6B51" text-anchor="middle">Halal</text>
+<path d="M323 472l6 6-6 6" fill="none" stroke="#93987F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<g>
+<rect x="16" y="534" width="328" height="92" rx="14" fill="#fff" filter="url(#sh)"/>
+<rect x="28" y="546" width="68" height="68" rx="10" fill="#FEF3C7"/><use href="#icBakmi" transform="translate(62 581) scale(.75)"/>
+<text x="108" y="566" font-size="14" font-weight="700" fill="#293220">Bakmi Ayam 99</text>
+<text x="108" y="584" font-size="11.5" fill="#5F6D54">Tebet · 5,1 km</text>
+<rect x="108" y="592" width="52" height="20" rx="10" fill="#FBE7DB"/><text x="134" y="606" font-size="10.5" font-weight="700" fill="#9A4A26" text-anchor="middle">Sudah</text>
+<use href="#star" x="174" y="602"/><text x="183" y="606" font-size="12" font-weight="700" fill="#293220">4,0</text>
+<path d="M323 574l6 6-6 6" fill="none" stroke="#93987F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<g>
+<rect x="16" y="636" width="328" height="92" rx="14" fill="#fff" filter="url(#sh)"/>
+<rect x="28" y="648" width="68" height="68" rx="10" fill="#E0F2FE"/>
+<text x="108" y="668" font-size="14" font-weight="700" fill="#293220">Warung Bu Imas</text>
+<text x="108" y="686" font-size="11.5" fill="#5F6D54">Cikini · 6,0 km</text>
+</g>
+
+<rect y="700" width="360" height="80" fill="#fff"/>
+<rect y="700" width="360" height="1" fill="#E4E0D3"/>
+<g transform="translate(45 726)" fill="none" stroke="#5F6D54" stroke-width="2" stroke-linejoin="round"><path d="M-10-7l6-3 8 3 6-3v17l-6 3-8-3-6 3z"/><path d="M-4-10v17M4-7v17"/></g>
+<text x="45" y="756" font-size="11" fill="#5B6B51" text-anchor="middle">Peta</text>
+<g transform="translate(135 726)" stroke="#5D6C4B" stroke-width="2" stroke-linecap="round"><path d="M-4-6h12M-4 0h12M-4 6h12"/><circle cx="-9" cy="-6" r="1.2" fill="#5D6C4B"/><circle cx="-9" cy="0" r="1.2" fill="#5D6C4B"/><circle cx="-9" cy="6" r="1.2" fill="#5D6C4B"/></g>
+<text x="135" y="756" font-size="11" font-weight="700" fill="#3F4A32" text-anchor="middle">Daftar</text>
+<circle cx="225" cy="722" r="20" fill="#5D6C4B"/>
+<path d="M225 714v16M217 722h16" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>
+<text x="225" y="756" font-size="11" fill="#5B6B51" text-anchor="middle">Tambah</text>
+<g transform="translate(315 726)" fill="none" stroke="#5F6D54" stroke-width="2" stroke-linecap="round"><circle cx="0" cy="-4" r="4.5"/><path d="M-8 9a8 7 0 0 1 16 0"/></g>
+<text x="315" y="756" font-size="11" fill="#5B6B51" text-anchor="middle">Profil</text>
+<rect x="130" y="768" width="100" height="4" rx="2" fill="#293220"/>
+</g>
+</g>
+
+<!-- ===== Phone 3: Detail ===== -->
+<g transform="translate(810 60)">
+<rect x="-8" y="-8" width="376" height="796" rx="48" fill="#293220" filter="url(#shPhone)"/>
+<g clip-path="url(#phoneClip)">
+<rect width="360" height="780" fill="#fff"/>
+<use href="#tiles" x="0" y="0" width="360" height="260"/>
+<use href="#statusbar"/>
+<ellipse cx="180" cy="172" rx="12" ry="4" fill="#293220" opacity=".18"/>
+<use href="#pinG" transform="translate(180 170) scale(1.4)"/>
+<circle cx="36" cy="72" r="18" fill="#fff" filter="url(#sh)"/>
+<path d="M39 66l-6 6 6 6" fill="none" stroke="#293220" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="324" cy="72" r="18" fill="#fff" filter="url(#sh)"/>
+<circle cx="317" cy="72" r="2" fill="#293220"/><circle cx="324" cy="72" r="2" fill="#293220"/><circle cx="331" cy="72" r="2" fill="#293220"/>
+
+<rect y="236" width="360" height="560" rx="24" fill="#fff"/>
+<text x="20" y="278" font-size="22" font-weight="700" fill="#293220">Ramen Hokkori</text>
+<text x="20" y="302" font-size="13" fill="#5F6D54">Jl. Melawai Raya No. 12, Blok M</text>
+<text x="20" y="320" font-size="13" fill="#5F6D54">Jakarta Selatan · 2,7 km</text>
+<rect x="20" y="334" width="136" height="26" rx="13" fill="#FBE7DB"/><use href="#chk" x="34" y="347"/>
+<text x="44" y="351" font-size="12" font-weight="700" fill="#9A4A26">Sudah dikunjungi</text>
+<g font-size="12" fill="#5B6B51" text-anchor="middle">
+<rect x="164" y="334" width="36" height="26" rx="13" fill="#F1EFE4"/><text x="182" y="351">$$</text>
+<rect x="208" y="334" width="58" height="26" rx="13" fill="#F1EFE4"/><text x="237" y="351">Ramen</text>
+<rect x="274" y="334" width="64" height="26" rx="13" fill="#F1EFE4"/><text x="306" y="351">Jepang</text>
+</g>
+<rect x="20" y="380" width="320" height="1" fill="#E4E0D3"/>
+
+<text x="20" y="408" font-size="13" font-weight="700" fill="#3F4A32">Rating kamu</text>
+<use href="#star" transform="translate(32 434) scale(1.6)"/>
+<use href="#star" transform="translate(58 434) scale(1.6)"/>
+<use href="#star" transform="translate(84 434) scale(1.6)"/>
+<use href="#star" transform="translate(110 434) scale(1.6)"/>
+<g transform="translate(136 434) scale(1.6)"><use href="#starOff"/><g clip-path="url(#halfL)"><use href="#star"/></g></g>
+<text x="156" y="440" font-size="18" font-weight="700" fill="#293220">4,5</text>
+
+<text x="20" y="478" font-size="13" font-weight="700" fill="#3F4A32">Catatan</text>
+<rect x="20" y="490" width="320" height="76" rx="12" fill="#F8FAFC" stroke="#E4E0D3"/>
+<text x="36" y="516" font-size="13" fill="#3F4A32">Kuah tonkotsu-nya kental banget.</text>
+<text x="36" y="536" font-size="13" fill="#3F4A32">Datang sebelum jam 7, antrenya panjang.</text>
+
+<text x="20" y="598" font-size="12" fill="#5F6D54">Dikunjungi</text>
+<text x="20" y="618" font-size="14" font-weight="700" fill="#293220">12 September 2026</text>
+<text x="190" y="598" font-size="12" fill="#5F6D54">Ditambahkan</text>
+<text x="190" y="618" font-size="14" font-weight="700" fill="#293220">3 Agustus 2026</text>
+
+<rect y="692" width="360" height="1" fill="#E4E0D3"/>
+<rect x="20" y="708" width="100" height="48" rx="12" fill="#fff" stroke="#D9D4C4"/>
+<text x="70" y="737" font-size="14" font-weight="700" fill="#293220" text-anchor="middle">Edit</text>
+<rect x="132" y="708" width="208" height="48" rx="12" fill="#5D6C4B"/>
+<text x="236" y="737" font-size="14" font-weight="700" fill="#fff" text-anchor="middle">Rute di Google Maps ↗</text>
+<rect x="130" y="768" width="100" height="4" rx="2" fill="#293220"/>
+</g>
+</g>
+</svg>

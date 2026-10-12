@@ -1,0 +1,130 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="900" viewBox="0 0 1280 900" role="img" aria-label="Mockup Mappetite desktop: modal Tambah Restoran dari link Google Maps">
+<defs>
+<style>text{font-family:'Plus Jakarta Sans','Inter','Segoe UI',Arial,sans-serif}</style>
+<symbol id="logoMark" viewBox="420 280 420 440">
+<g fill="#A1A889">
+<path d="M436 670L476 588C480 582 488 579 496 578L552 572C560 571 566 575 571 581L592 606C576 616 562 632 552 656C548 664 540 668 530 668Z"/>
+<path d="M566 664C580 630 598 615 612 612C628 628 660 645 690 660C708 670 718 684 720 698C690 702 650 700 620 690C600 683 580 672 566 664Z"/>
+<path d="M650 632C668 622 680 604 694 582C698 578 704 576 710 577L770 588C778 590 783 594 786 600L822 668C800 678 770 688 742 694C734 680 724 666 706 654C688 644 668 638 650 632Z"/>
+</g>
+<path d="M628 612C600 585 515 525 515 440A115 115 0 1 1 745 440C745 525 656 585 628 612Z" fill="#5D6C4B" stroke="#fff" stroke-width="14" paint-order="stroke"/>
+<circle cx="630" cy="445" r="80" fill="#fff"/>
+<g fill="#5D6C4B">
+<rect x="578" y="405" width="8" height="48" rx="4"/><rect x="596" y="405" width="8" height="48" rx="4"/><rect x="614" y="405" width="8" height="48" rx="4"/>
+<path d="M578 445H622V455C622 470 616 479 606 482V528H594V482C584 479 578 470 578 455Z"/>
+<ellipse cx="663" cy="437" rx="18" ry="30"/>
+<rect x="657" y="460" width="12" height="68" rx="5"/>
+</g>
+<g fill="none" stroke="#EE8052" stroke-width="13" stroke-linecap="round">
+<path d="M729 333L746 303M753 357L787 340M764 389L800 393"/>
+</g>
+</symbol>
+<filter id="sh" x="-20%" y="-30%" width="140%" height="170%"><feDropShadow dx="0" dy="4" stdDeviation="7" flood-color="#293220" flood-opacity="0.08"/></filter>
+<filter id="sh2" x="-10%" y="-10%" width="120%" height="125%"><feDropShadow dx="0" dy="16" stdDeviation="24" flood-color="#293220" flood-opacity="0.25"/></filter>
+<symbol id="tiles" viewBox="0 0 800 700" preserveAspectRatio="xMidYMid slice">
+<rect width="800" height="700" fill="#EDEEE4"/>
+<rect x="90" y="330" width="140" height="100" rx="10" fill="#D9EED8" transform="rotate(-8 160 380)"/>
+<rect x="420" y="40" width="170" height="90" rx="10" fill="#D9EED8" transform="rotate(-8 505 85)"/>
+<rect x="560" y="470" width="110" height="120" rx="10" fill="#D9EED8" transform="rotate(-8 615 530)"/>
+<g transform="rotate(-8 400 350)" fill="none" stroke="#FFFFFF" stroke-width="5">
+<path d="M-200 -24H1000M-200 40H1000M-200 104H1000M-200 168H1000M-200 232H1000M-200 296H1000M-200 360H1000M-200 424H1000M-200 488H1000M-200 552H1000M-200 616H1000M-200 680H1000M-200 744H1000"/>
+<path d="M-52 -200V900M20 -200V900M92 -200V900M164 -200V900M236 -200V900M308 -200V900M380 -200V900M452 -200V900M524 -200V900M596 -200V900M668 -200V900M740 -200V900M812 -200V900"/>
+</g>
+<g fill="none" stroke-linecap="round">
+<path d="M-20 260C200 240 500 210 820 160M260 -20C280 200 300 450 330 720M-20 570C300 530 520 550 820 480" stroke="#DDE2E8" stroke-width="15"/>
+<path d="M-20 260C200 240 500 210 820 160M260 -20C280 200 300 450 330 720M-20 570C300 530 520 550 820 480" stroke="#FFFFFF" stroke-width="11"/>
+</g>
+<path d="M620 -10C600 80 650 170 820 190V-10Z" fill="#CFE3F5"/>
+<path d="M-10 640C80 600 160 650 230 710H-10Z" fill="#CFE3F5"/>
+</symbol>
+<g id="pinB"><path d="M0 0C-4-10-16-18-16-28A16 16 0 1 1 16-28C16-18 4-10 0 0Z" fill="#5D6C4B" stroke="#fff" stroke-width="2"/><circle cx="0" cy="-28" r="6" fill="#fff"/></g>
+<clipPath id="mapClip"><rect x="468" y="96" width="788" height="780" rx="20"/></clipPath>
+<clipPath id="miniClip"><rect x="312" y="284" width="260" height="190" rx="12"/></clipPath>
+</defs>
+
+<!-- Background page (dimmed) -->
+<rect width="1280" height="900" fill="#FAF6EC"/>
+<rect width="1280" height="72" fill="#fff"/>
+<use href="#logoMark" x="24" y="14" width="44" height="46"/>
+<text x="74" y="45" font-size="22" font-weight="800" fill="#293220" textLength="118" lengthAdjust="spacingAndGlyphs">Mappetite</text>
+<path d="M179 30C182 24 188 21 194 22C192 28 186 32 179 30Z" fill="#5C6B4A"/>
+<rect x="1000" y="18" width="184" height="36" rx="10" fill="#5D6C4B"/>
+<rect x="24" y="110" width="320" height="26" rx="8" fill="#E4E0D3"/>
+<rect x="24" y="172" width="420" height="48" rx="12" fill="#fff"/>
+<rect x="24" y="336" width="420" height="116" rx="16" fill="#fff"/>
+<rect x="24" y="464" width="420" height="116" rx="16" fill="#fff"/>
+<rect x="24" y="592" width="420" height="116" rx="16" fill="#fff"/>
+<rect x="24" y="720" width="420" height="116" rx="16" fill="#fff"/>
+<g clip-path="url(#mapClip)"><use href="#tiles" x="468" y="96" width="788" height="780"/></g>
+<rect width="1280" height="900" fill="#293220" opacity=".5"/>
+
+<!-- Modal -->
+<rect x="280" y="60" width="720" height="780" rx="20" fill="#fff" filter="url(#sh2)"/>
+<text x="312" y="106" font-size="22" font-weight="700" fill="#293220">Tambah Restoran</text>
+<text x="312" y="130" font-size="13" fill="#5F6D54">Tempel link Google Maps, nama dan lokasinya kami isi otomatis.</text>
+<circle cx="956" cy="100" r="16" fill="#F1EFE4"/>
+<path d="M950 94l12 12M962 94l-12 12" stroke="#5B6B51" stroke-width="2" stroke-linecap="round"/>
+<rect x="280" y="152" width="720" height="1" fill="#E4E0D3"/>
+
+<text x="312" y="182" font-size="12" font-weight="700" fill="#3F4A32">Link Google Maps</text>
+<rect x="312" y="192" width="500" height="48" rx="12" fill="#fff" stroke="#5D6C4B" stroke-width="1.5"/>
+<rect x="309" y="189" width="506" height="54" rx="15" fill="none" stroke="#5D6C4B" stroke-opacity=".18" stroke-width="3"/>
+<g transform="translate(336 216)" fill="none" stroke="#5F6D54" stroke-width="2" stroke-linecap="round"><path d="M-3 3l6-6M-1-6l2-2a4 4 0 0 1 6 6l-2 2M1 6l-2 2a4 4 0 0 1-6-6l2-2"/></g>
+<text x="356" y="221" font-size="14" fill="#293220">https://maps.app.goo.gl/x7Kp2QeR9vLm</text>
+<rect x="824" y="192" width="144" height="48" rx="12" fill="#5D6C4B"/>
+<text x="896" y="221" font-size="14" font-weight="700" fill="#fff" text-anchor="middle">Ambil Data</text>
+
+<circle cx="320" cy="262" r="8" fill="#D97745"/>
+<path d="M316 262l3 3 5-5" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="336" y="266" font-size="13" font-weight="600" fill="#9A4A26">Nama dan lokasi berhasil diambil. Cek lagi sebelum disimpan.</text>
+
+<!-- Mini map preview -->
+<g clip-path="url(#miniClip)">
+<use href="#tiles" x="312" y="284" width="260" height="190"/>
+<ellipse cx="442" cy="392" rx="10" ry="4" fill="#293220" opacity=".18"/>
+<use href="#pinB" transform="translate(442 390) scale(1.2)"/>
+</g>
+<rect x="312" y="284" width="260" height="190" rx="12" fill="none" stroke="#E4E0D3"/>
+<text x="312" y="494" font-size="11.5" fill="#5F6D54">Lokasi kurang pas? Geser pin di peta.</text>
+
+<text x="596" y="298" font-size="12" font-weight="700" fill="#3F4A32">Nama restoran</text>
+<rect x="596" y="308" width="372" height="44" rx="10" fill="#fff" stroke="#E4E0D3"/>
+<text x="612" y="335" font-size="14" fill="#293220">Ramen Hokkori</text>
+<text x="596" y="376" font-size="12" font-weight="700" fill="#3F4A32">Alamat</text>
+<rect x="596" y="386" width="372" height="44" rx="10" fill="#fff" stroke="#E4E0D3"/>
+<text x="612" y="413" font-size="14" fill="#293220">Jl. Melawai Raya No. 12, Blok M, Jaksel</text>
+<text x="596" y="450" font-size="11.5" fill="#5F6D54">Alamat otomatis dari OpenStreetMap, bisa diubah.</text>
+
+<text x="312" y="522" font-size="12" font-weight="700" fill="#3F4A32">Status</text>
+<rect x="312" y="532" width="320" height="40" rx="10" fill="#EFEBDD"/>
+<rect x="316" y="536" width="154" height="32" rx="8" fill="#E7ECDF" stroke="#5D6C4B"/>
+<text x="393" y="557" font-size="13" font-weight="700" fill="#3F4A32" text-anchor="middle">Ingin dikunjungi</text>
+<text x="551" y="557" font-size="13" font-weight="500" fill="#5B6B51" text-anchor="middle">Sudah dikunjungi</text>
+
+<text x="664" y="522" font-size="12" font-weight="700" fill="#3F4A32">Kisaran harga</text>
+<g font-size="13" text-anchor="middle">
+<rect x="664" y="532" width="68" height="40" rx="10" fill="#fff" stroke="#E4E0D3"/><text x="698" y="557" fill="#5B6B51">$</text>
+<rect x="740" y="532" width="68" height="40" rx="10" fill="#E7ECDF" stroke="#5D6C4B"/><text x="774" y="557" fill="#3F4A32" font-weight="700">$$</text>
+<rect x="816" y="532" width="68" height="40" rx="10" fill="#fff" stroke="#E4E0D3"/><text x="850" y="557" fill="#5B6B51">$$$</text>
+<rect x="892" y="532" width="68" height="40" rx="10" fill="#fff" stroke="#E4E0D3"/><text x="926" y="557" fill="#5B6B51">$$$$</text>
+</g>
+
+<text x="312" y="602" font-size="12" font-weight="700" fill="#3F4A32">Tag</text>
+<g font-size="12">
+<rect x="312" y="612" width="80" height="30" rx="15" fill="#F1EFE4"/><text x="326" y="631" fill="#3F4A32">Ramen  ×</text>
+<rect x="400" y="612" width="86" height="30" rx="15" fill="#F1EFE4"/><text x="414" y="631" fill="#3F4A32">Jepang  ×</text>
+<rect x="494" y="612" width="112" height="30" rx="15" fill="#fff" stroke="#D9D4C4" stroke-dasharray="4 3"/><text x="550" y="631" fill="#5B6B51" text-anchor="middle">+ Tambah tag</text>
+<text x="622" y="631" fill="#5F6D54">Saran: Halal · Nugas · Date</text>
+</g>
+
+<text x="312" y="670" font-size="12" font-weight="700" fill="#3F4A32">Catatan <tspan font-weight="400" fill="#5F6D54">(opsional)</tspan></text>
+<rect x="312" y="680" width="656" height="64" rx="10" fill="#fff" stroke="#E4E0D3"/>
+<text x="328" y="706" font-size="14" fill="#293220">Rekomendasi dari Dina, wajib coba shoyu ramen-nya.</text>
+<text x="956" y="734" font-size="11" fill="#5F6D54" text-anchor="end">50/500</text>
+
+<rect x="280" y="764" width="720" height="1" fill="#E4E0D3"/>
+<rect x="720" y="780" width="96" height="44" rx="10" fill="#fff" stroke="#D9D4C4"/>
+<text x="768" y="807" font-size="14" font-weight="700" fill="#3F4A32" text-anchor="middle">Batal</text>
+<rect x="828" y="780" width="140" height="44" rx="10" fill="#5D6C4B"/>
+<text x="898" y="807" font-size="14" font-weight="700" fill="#fff" text-anchor="middle">Simpan Restoran</text>
+</svg>
