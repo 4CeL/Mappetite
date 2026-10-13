@@ -1,0 +1,251 @@
+@import "tailwindcss";
+
+/* Design tokens from DESIGN.md (palette sampled from logo-mappetite.png) */
+@theme {
+  --color-brand-orange: #ee8052;
+
+  --color-primary-50: #e7ecdf;
+  --color-primary-100: #d8e0cc;
+  --color-primary-600: #6b7b58;
+  --color-primary-700: #5d6c4b;
+  --color-primary-800: #3f4a32;
+  --color-primary-900: #2f3826;
+
+  --color-visited-50: #fbe7db;
+  --color-visited-500: #d97745;
+  --color-visited-700: #9a4a26;
+
+  --color-warning-50: #fff7e6;
+  --color-warning-200: #f3dcae;
+  --color-warning-700: #9a5b00;
+
+  --color-danger-50: #fef0ee;
+  --color-danger-200: #f7c9c3;
+  --color-danger-600: #d92d20;
+  --color-danger-700: #b42318;
+
+  --color-star: #f5a524;
+
+  --color-ink-900: #293220;
+  --color-ink-700: #3f4a32;
+  --color-ink-600: #5b6b51;
+  --color-ink-500: #5f6d54;
+  --color-ink-400: #93987f;
+
+  --color-line: #e4e0d3;
+  --color-line-strong: #d9d4c4;
+  --color-cream: #faf6ec;
+  --color-chip: #f1efe4;
+  --color-track: #efebdd;
+
+  --shadow-card: 0 4px 14px rgb(41 50 32 / 0.08);
+  --shadow-pop: 0 10px 28px rgb(41 50 32 / 0.16);
+  --shadow-sheet: 0 -6px 24px rgb(41 50 32 / 0.12);
+}
+
+@theme inline {
+  --font-sans: var(--font-jakarta), "Plus Jakarta Sans", "Segoe UI", system-ui, sans-serif;
+}
+
+@layer base {
+  html {
+    -webkit-tap-highlight-color: transparent;
+  }
+  body {
+    @apply bg-cream text-ink-900 antialiased;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-primary-700);
+    outline-offset: 2px;
+  }
+  ::selection {
+    background: var(--color-primary-100);
+  }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 text-sm font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-60;
+    min-height: 2.75rem;
+  }
+  .btn-sm {
+    @apply rounded-lg px-3 text-xs;
+    min-height: 2rem;
+  }
+  .btn-primary {
+    @apply bg-primary-700 text-white hover:bg-primary-800;
+  }
+  .btn-outline {
+    @apply border border-line-strong bg-white text-ink-900 hover:bg-chip;
+  }
+  .btn-ghost {
+    @apply text-ink-700 hover:bg-chip;
+  }
+  .btn-danger {
+    @apply bg-danger-600 text-white hover:bg-danger-700;
+  }
+  .icon-btn {
+    @apply inline-flex size-11 items-center justify-center rounded-full bg-white text-ink-900 shadow-card transition-colors hover:bg-chip;
+  }
+
+  .field-label {
+    @apply mb-1.5 block text-xs font-bold text-ink-700;
+  }
+  .field-hint {
+    @apply mt-1.5 text-xs text-ink-500;
+  }
+  .input {
+    @apply w-full rounded-xl border border-line bg-white px-4 text-sm text-ink-900 placeholder:text-ink-500 focus:border-primary-700 focus:outline-none focus:ring-3 focus:ring-primary-700/15;
+    min-height: 2.75rem;
+  }
+  textarea.input {
+    @apply py-3;
+  }
+
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-full border border-line bg-white px-3 text-xs font-semibold text-ink-700 transition-colors hover:bg-chip;
+    min-height: 2rem;
+  }
+  .chip[aria-pressed="true"] {
+    @apply border-primary-700 bg-primary-50 text-primary-800;
+  }
+  .tag {
+    @apply inline-flex items-center rounded-full bg-chip px-2.5 py-0.5 text-[11px] font-medium text-ink-600;
+  }
+
+  .card {
+    @apply rounded-2xl bg-white shadow-card;
+  }
+
+  .segmented {
+    @apply flex rounded-xl bg-track p-1;
+  }
+  .segmented > button {
+    @apply flex-1 rounded-lg px-2 text-[13px] font-medium text-ink-600 transition-colors;
+    min-height: 2.25rem;
+  }
+  .segmented > button[aria-pressed="true"] {
+    @apply bg-white font-bold text-ink-900 shadow-card;
+  }
+
+  .alert {
+    @apply flex gap-3 rounded-xl border px-4 py-3 text-sm;
+  }
+  .alert-success {
+    @apply border-primary-100 bg-primary-50 text-primary-800;
+  }
+  .alert-warning {
+    @apply border-warning-200 bg-warning-50 text-warning-700;
+  }
+  .alert-error {
+    @apply border-danger-200 bg-danger-50 text-danger-700;
+  }
+  .alert-info {
+    @apply border-line bg-chip text-ink-700;
+  }
+
+  .skeleton {
+    @apply animate-pulse rounded-lg bg-track;
+  }
+}
+
+/* ---------- Leaflet ---------- */
+.leaflet-container {
+  font-family: inherit;
+  background: #edeee4;
+}
+.leaflet-control-attribution {
+  font-size: 10px;
+  background: rgb(255 255 255 / 0.85) !important;
+  color: var(--color-ink-600);
+}
+.leaflet-control-attribution a {
+  color: var(--color-ink-700);
+}
+@media (max-width: 1023px) {
+  .mp-map .leaflet-bottom {
+    bottom: var(--mp-attr-bottom, 0px);
+    transition: bottom 150ms ease;
+  }
+}
+
+.mp-marker {
+  background: none;
+  border: none;
+}
+.mp-marker:focus-visible {
+  outline: none;
+}
+.mp-marker:focus-visible .mp-pin {
+  filter: drop-shadow(0 0 0 var(--color-primary-700)) drop-shadow(0 0 3px var(--color-primary-700));
+}
+.mp-pin {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  transform: translateX(-50%);
+  filter: drop-shadow(0 2px 3px rgb(41 50 32 / 0.25));
+  transition: transform 120ms ease;
+}
+.mp-marker:hover .mp-pin {
+  transform: translateX(-50%) scale(1.08);
+}
+.mp-label {
+  position: absolute;
+  left: 14px;
+  bottom: 30px;
+  white-space: nowrap;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 4px 10px;
+  border-radius: 8px;
+  background: #fff;
+  color: var(--color-ink-900);
+  font-size: 12px;
+  font-weight: 600;
+  box-shadow: var(--shadow-card);
+  pointer-events: none;
+}
+.mp-marker.is-selected .mp-label {
+  background: var(--color-ink-900);
+  color: #fff;
+  font-weight: 700;
+  left: 18px;
+  bottom: 38px;
+}
+/* Labels are hidden when zoomed out (toggled on the map container), except for the selected pin. */
+.mp-labels-hidden .mp-marker:not(.is-selected) .mp-label {
+  display: none;
+}
+
+.mp-cluster {
+  background: none;
+}
+.mp-cluster div {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 9999px;
+  background: var(--color-primary-700);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  border: 3px solid #fff;
+  box-shadow: 0 0 0 6px rgb(93 108 75 / 0.18), var(--shadow-card);
+}
+
+.mp-user-dot {
+  background: none;
+}
+.mp-user-dot span {
+  display: block;
+  width: 16px;
+  height: 16px;
+  border-radius: 9999px;
+  background: var(--color-primary-700);
+  border: 3px solid #fff;
+  box-shadow: 0 0 0 8px rgb(93 108 75 / 0.18);
+}

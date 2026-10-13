@@ -275,3 +275,7 @@ Mockup ada di `design/`. Panduan warna, tipografi, dan komponen ada di `DESIGN.m
 - Halaman list menampilkan semua restoran dengan filter status dan tag yang berfungsi.
 - Seluruh UI bisa diganti ID ↔ EN tanpa reload, dan tidak ada teks yang tertinggal di salah satu bahasa.
 - Aplikasi bisa diakses publik lewat URL production dan nyaman dipakai di HP.
+
+Saran Next
+- Warna Diperbaiki
+- Tambahin Detail Seperti Jam Buka dan yang lainnya di detail
