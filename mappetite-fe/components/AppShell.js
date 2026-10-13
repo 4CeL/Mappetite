@@ -131,6 +131,8 @@ export default function AppShell({ children }) {
     else if (token && isPublic) router.replace("/");
   }, [hydrated, token, isPublic, router]);
 
+  const isListPage = path === "/list";
+
   if (!hydrated || (!token && !isPublic) || (token && isPublic)) return <Splash />;
 
   if (isPublic) return children;
@@ -143,8 +145,8 @@ export default function AppShell({ children }) {
       >
         {t("nav.skipToContent")}
       </a>
-      <DesktopHeader path={path} />
-      <main id="main" className="flex-1 pb-[4.5rem] lg:pb-0">
+      {!isListPage && <DesktopHeader path={path} />}
+      <main id="main" className={`flex-1 ${isListPage ? "pb-16 lg:pb-0" : "pb-[4.5rem] lg:pb-0"}`}>
         {children}
       </main>
       <BottomNav path={path} />
