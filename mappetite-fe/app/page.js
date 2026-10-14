@@ -1,157 +1,687 @@
 "use client";
 
-import { ArrowRight, MapPin } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { useCallback, useEffect } from "react";
+import {
+  ArrowRight,
+  Bookmark,
+  Check,
+  ChevronRight,
+  Edit2,
+  ExternalLink,
+  MapPin,
+  MoreHorizontal,
+  Navigation,
+  PanelLeftClose,
+  PanelLeftOpen,
+  Plus,
+  Share2,
+  Star,
+  Trash2,
+  X,
+} from "lucide-react";
 
+import AppSidebar from "@/components/layout/AppSidebar";
+import TopSearchBar from "@/components/layout/TopSearchBar";
 import { MapView } from "@/components/map";
 import EmptyState from "@/components/places/EmptyState";
-import PlaceActions from "@/components/places/PlaceActions";
-import PlaceCard, { PlaceCardSkeleton } from "@/components/places/PlaceCard";
-import PlaceFilters from "@/components/places/PlaceFilters";
-import PlacePopup from "@/components/places/PlacePopup";
 import PlaceThumb from "@/components/places/PlaceThumb";
-import { RatingPill } from "@/components/places/Rating";
+import { PlaceCardSkeleton } from "@/components/places/PlaceCard";
 import StatusBadge from "@/components/places/StatusBadge";
-import useFilteredPlaces from "@/components/places/useFilteredPlaces";
+import { RatingPill } from "@/components/places/Rating";
 import { usePlaces } from "@/components/providers/PlacesProvider";
+import { useAuth } from "@/components/providers/AuthProvider";
+import { sortPlaces } from "@/lib/filters";
 import { shortArea } from "@/lib/format";
 import { useI18n } from "@/lib/i18n";
+import { getFoodPhoto } from "@/lib/food-images";
+import { openInMapsUrl, directionsUrl } from "@/lib/maps";
+import { api } from "@/lib/api";
 
-function PanelList({ visible, selectedId, onSelect }) {
-  const { status, places, reload } = usePlaces();
-
-  if (status === "loading") {
-    return (
-      <div className="flex flex-col gap-3">
-        <PlaceCardSkeleton />
-        <PlaceCardSkeleton />
-        <PlaceCardSkeleton />
-      </div>
-    );
+/* ── Greeting helper ─────────────────────────────────────────────── */
+function getGreeting(lang) {
+  const hour = new Date().getHours();
+  if (lang === "en") {
+    if (hour < 12) return "Good morning";
+    if (hour < 17) return "Good afternoon";
+    return "Good evening";
   }
-  if (status === "error") return <EmptyState kind="error" onRetry={reload} />;
-  if (places.length === 0) return <EmptyState kind="empty" />;
-  if (visible.length === 0) return <EmptyState kind="filtered" />;
-
-  return (
-    <ul className="flex flex-col gap-3">
-      {visible.map((place) => (
-        <li key={place.id} id={`place-card-${place.id}`}>
-          <PlaceCard place={place} selected={place.id === selectedId} onSelect={onSelect} />
-        </li>
-      ))}
-    </ul>
-  );
+  if (hour < 12) return "Selamat pagi";
+  if (hour < 15) return "Selamat siang";
+  if (hour < 18) return "Selamat sore";
+  return "Selamat malam";
 }
 
-function MobileSheet({ selected, count }) {
-  const { t, formatDistance } = useI18n();
-  const { status, places } = usePlaces();
+/* ── Stats Row (compact) ─────────────────────────────────────────── */
+function StatsRow({ counts }) {
+  const items = [
+    { icon: Bookmark, color: "#D96B43", bg: "#FCE8DE", label: "Want to Visit", value: counts.wishlist },
+    { icon: Check, color: "#4E8746", bg: "#E0EEDD", label: "Visited", value: counts.visited },
+  ];
 
   return (
-    <div className="absolute inset-x-0 bottom-0 z-[950] rounded-t-3xl bg-white px-5 pb-5 pt-3 shadow-sheet lg:hidden">
-      <span className="mx-auto mb-3 block h-1 w-10 rounded-full bg-line-strong" aria-hidden="true" />
-      {selected ? (
-        <div className="flex flex-col gap-4" aria-live="polite">
-          <div className="flex items-center gap-4">
-            <PlaceThumb place={selected} className="size-[4.5rem]" iconClassName="size-8" />
-            <div className="min-w-0 flex-1">
-              <h2 className="truncate text-base font-bold text-ink-900">{selected.name}</h2>
-              <p className="truncate text-xs text-ink-500">
-                {[shortArea(selected.address), formatDistance(selected.distanceKm)].filter(Boolean).join(" · ")}
-              </p>
-              <div className="mt-2 flex items-center gap-2">
-                <StatusBadge status={selected.status} />
-                <RatingPill value={selected.rating} />
-              </div>
-            </div>
-          </div>
-          <PlaceActions place={selected} />
+    <div className="flex items-center justify-between gap-3">
+      {items.map((item) => (
+        <div key={item.label} className="flex flex-col items-center gap-1 min-w-0 flex-1">
+          <span
+            className="flex size-7 items-center justify-center rounded-full"
+            style={{ backgroundColor: item.bg }}
+          >
+            <item.icon className="size-3.5" style={{ color: item.color }} strokeWidth={2.5} />
+          </span>
+          <span className="text-base font-extrabold text-ink-900 leading-none">{item.value}</span>
+          <span className="text-[10px] text-ink-500 font-medium truncate">{item.label}</span>
         </div>
-      ) : status === "ready" && places.length === 0 ? (
-        <EmptyState kind="empty" className="py-2" />
-      ) : (
-        <div className="flex items-center justify-between gap-3">
-          <p className="flex items-center gap-2 text-sm font-semibold text-ink-900">
-            <MapPin className="size-4 text-primary-700" aria-hidden="true" />
-            {status === "loading" ? t("app.loading") : t("home.restaurantsShown", { count })}
-          </p>
-          <Link href="/list/" className="btn btn-sm btn-outline">
-            {t("nav.list")}
-            <ArrowRight className="size-3.5" aria-hidden="true" />
-          </Link>
-        </div>
-      )}
+      ))}
     </div>
   );
 }
 
+/* ── Compact Restaurant Card (left panel list) ───────────────────── */
+function NearbyCard({ place, selected, onSelect }) {
+  const { formatDistance } = useI18n();
+  const [imgError, setImgError] = useState(false);
+  const photoUrl = getFoodPhoto(place);
+  const area = shortArea(place.address);
+  const distance = formatDistance(place.distanceKm);
+  const firstTag = place.tags?.[0]?.name;
+
+  return (
+    <button
+      type="button"
+      onClick={() => onSelect(place.id)}
+      className={`group/card flex items-center gap-3 w-full rounded-xl p-2.5 text-left transition-all hover:bg-[#F2EFE8] ${
+        selected ? "bg-[#E5EBDD] ring-1 ring-[#C5D4B8]" : ""
+      }`}
+    >
+      {/* Thumbnail */}
+      <div className="relative size-16 shrink-0 overflow-hidden rounded-xl bg-stone-100">
+        {!imgError ? (
+          <img
+            src={photoUrl}
+            alt={place.name}
+            onError={() => setImgError(true)}
+            className="h-full w-full object-cover"
+            loading="lazy"
+          />
+        ) : (
+          <PlaceThumb place={place} className="size-full rounded-none" iconClassName="size-8" />
+        )}
+      </div>
+
+      {/* Info */}
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2 justify-between">
+          <span className="text-sm font-bold text-ink-900 truncate">{place.name}</span>
+          <StatusBadge status={place.status} className="shrink-0 text-[10px] px-2 py-0.5" />
+        </div>
+        <p className="text-[11px] text-ink-500 truncate mt-0.5">
+          {[firstTag, distance].filter(Boolean).join(" · ")}
+        </p>
+        <div className="flex items-center gap-1 mt-1">
+          {place.rating != null && (
+            <span className="flex items-center gap-0.5 text-[11px] font-semibold text-ink-700">
+              <Star className="size-3 text-[#F59E0B] fill-current" />
+              {Number(place.rating).toFixed(1)}
+              {place.google_maps_rating_count != null && (
+                <span className="font-normal text-ink-400">({place.google_maps_rating_count.toLocaleString()})</span>
+              )}
+            </span>
+          )}
+        </div>
+      </div>
+
+      <ChevronRight className="size-4 shrink-0 text-ink-300 group-hover/card:text-ink-500 transition-colors" />
+    </button>
+  );
+}
+
+/* ── Right Detail Panel ──────────────────────────────────────────── */
+function DetailPanel({ place, onClose, onDelete }) {
+  const { lang, t, formatDistance } = useI18n();
+  const [imgError, setImgError] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const photoUrl = getFoodPhoto(place);
+  const firstTag = place.tags?.[0]?.name;
+  const distance = formatDistance(place.distanceKm);
+
+  const actionButtons = [
+    { icon: Bookmark, label: "Save" },
+    { icon: Navigation, label: "Open in Maps", href: openInMapsUrl(place) },
+    { icon: Share2, label: "Share" },
+  ];
+
+  return (
+    <aside className="flex flex-col w-full h-full bg-white/95 backdrop-blur-md rounded-2xl shadow-xl border border-[#EAE5D9] overflow-hidden">
+      {/* ── Photo Header ── */}
+      <div className="relative h-40 shrink-0 overflow-hidden bg-stone-100">
+        {!imgError ? (
+          <img
+            src={photoUrl}
+            alt={place.name}
+            onError={() => setImgError(true)}
+            className="h-full w-full object-cover"
+          />
+        ) : (
+          <PlaceThumb place={place} className="h-full w-full rounded-none" iconClassName="size-10" />
+        )}
+
+        {/* Gradient overlay biar tombol kebaca */}
+        <div className="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-black/40 to-transparent pointer-events-none" />
+
+        {/* Top controls — overlay di atas gambar */}
+        <div className="absolute inset-x-0 top-0 flex items-center justify-between p-3">
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex size-9 items-center justify-center rounded-full bg-white/90 backdrop-blur-sm text-ink-700 hover:bg-white shadow-sm transition-colors"
+            aria-label="Close"
+          >
+            <X className="size-4" />
+          </button>
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setMenuOpen(!menuOpen)}
+              className="flex size-9 items-center justify-center rounded-full bg-white/90 backdrop-blur-sm text-ink-700 hover:bg-white shadow-sm transition-colors"
+              aria-label="More options"
+            >
+              <MoreHorizontal className="size-4" />
+            </button>
+            {menuOpen && (
+              <>
+                <div className="fixed inset-0 z-40" onClick={() => setMenuOpen(false)} />
+                <div className="absolute right-0 top-full mt-1 z-50 w-44 rounded-xl border border-line bg-white py-1.5 shadow-lg">
+                  <Link
+                    href={`/places/detail/?id=${encodeURIComponent(place.id)}`}
+                    className="flex items-center gap-2 px-3 py-2 text-xs text-ink-800 hover:bg-stone-50"
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    <Edit2 className="size-3.5 text-ink-500" />
+                    Detail & Edit
+                  </Link>
+                  {place.google_maps_url && (
+                    <a
+                      href={place.google_maps_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 px-3 py-2 text-xs text-ink-800 hover:bg-stone-50"
+                      onClick={() => setMenuOpen(false)}
+                    >
+                      <Navigation className="size-3.5 text-primary-600" />
+                      Rute di Google Maps
+                    </a>
+                  )}
+                  {onDelete && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setMenuOpen(false);
+                        onDelete(place);
+                      }}
+                      className="flex w-full items-center gap-2 px-3 py-2 text-left text-xs text-danger-600 hover:bg-danger-50"
+                    >
+                      <Trash2 className="size-3.5 text-danger-600" />
+                      Hapus Restoran
+                    </button>
+                  )}
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* ── Content (scrollable) ── */}
+      <div className="flex-1 min-h-0 overflow-y-auto">
+        <div className="flex flex-col gap-4 px-5 pt-4 pb-5">
+          {/* Name + Status */}
+          <div>
+            <div className="flex items-start justify-between gap-2">
+              <h2 className="text-xl font-extrabold text-ink-900 leading-tight">{place.name}</h2>
+              <StatusBadge status={place.status} className="shrink-0 mt-0.5" />
+            </div>
+            <p className="text-xs text-ink-500 mt-1.5">
+              {[firstTag, distance].filter(Boolean).join(" · ")}
+            </p>
+            {place.rating != null && (
+              <div className="flex items-center gap-1 mt-1.5">
+                <Star className="size-3.5 text-[#F59E0B] fill-current" />
+                <span className="text-sm font-bold text-ink-800">{Number(place.rating).toFixed(1)}</span>
+                {place.google_maps_rating_count != null && (
+                  <span className="text-xs text-ink-400">({place.google_maps_rating_count.toLocaleString()})</span>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Action Buttons Row */}
+          <div className="flex items-center justify-between gap-2">
+            {actionButtons.map((btn) => {
+              const Comp = btn.href ? "a" : "button";
+              const extraProps = btn.href
+                ? { href: btn.href, target: "_blank", rel: "noopener noreferrer" }
+                : { type: "button" };
+              return (
+                <Comp
+                  key={btn.label}
+                  {...extraProps}
+                  className="flex flex-col items-center gap-1.5 flex-1 rounded-xl py-3 text-ink-600 hover:bg-[#F2EFE8] transition-colors"
+                >
+                  <btn.icon className="size-5" />
+                  <span className="text-[10px] font-medium">{btn.label}</span>
+                </Comp>
+              );
+            })}
+          </div>
+
+          {/* Divider */}
+          <div className="border-t border-[#EAE5D9]" />
+
+          {/* Address */}
+          {place.address && (
+            <div className="flex items-start gap-2.5">
+              <MapPin className="size-4 text-[#D96B43] shrink-0 mt-0.5" />
+              <p className="text-xs text-ink-700 leading-relaxed">{place.address}</p>
+            </div>
+          )}
+
+          {/* Status Dropdown */}
+          <div>
+            <h3 className="text-xs font-bold text-ink-800 mb-2">Your Status</h3>
+            <div className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-semibold border ${
+              place.status === "visited"
+                ? "border-[#DBEBD7] bg-[#EDF4EB] text-[#4E8746]"
+                : "border-[#FCDFD3] bg-[#FDF1EB] text-[#D96B43]"
+            }`}>
+              {place.status === "visited" ? (
+                <Check className="size-3.5 stroke-[2.5]" />
+              ) : (
+                <Bookmark className="size-3.5 fill-current" />
+              )}
+              <span>{place.status === "visited" ? "Visited" : "Want to Visit"}</span>
+            </div>
+          </div>
+
+          {/* Tags */}
+          {place.tags?.length > 0 && (
+            <div>
+              <h3 className="text-xs font-bold text-ink-800 mb-2">Tags</h3>
+              <div className="flex flex-wrap gap-1.5">
+                {place.tags.map((tag) => (
+                  <span
+                    key={tag.id}
+                    className="rounded-full bg-[#F4F1EA] border border-[#E5E1D5] px-3 py-1 text-[11px] font-medium text-ink-700"
+                  >
+                    {tag.name}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Notes Section — tanpa tombol Edit */}
+          {place.notes && (
+            <div>
+              <h3 className="text-xs font-bold text-ink-800 mb-2 flex items-center gap-1.5">
+                <span>📝</span> Notes
+              </h3>
+              <div className="rounded-xl bg-white border border-[#ECE7DD] p-3">
+                <p className="text-xs text-ink-600 leading-relaxed whitespace-pre-wrap">{place.notes}</p>
+              </div>
+            </div>
+          )}
+
+          {/* Bottom Actions */}
+          <div className="flex items-center gap-2 pt-2">
+            <Link
+              href={`/places/detail/?id=${encodeURIComponent(place.id)}`}
+              className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-[#485635] hover:bg-[#3B472A] text-white px-4 py-3 text-xs font-bold shadow-sm transition-all"
+            >
+              <Edit2 className="size-4" /> Detail
+            </Link>
+            {onDelete && (
+              <button
+                type="button"
+                onClick={() => onDelete(place)}
+                className="flex size-11 items-center justify-center rounded-xl border border-danger-200 bg-danger-50 text-danger-600 hover:bg-danger-100 transition-colors"
+                aria-label="Delete"
+              >
+                <Trash2 className="size-4" />
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    </aside>
+  );
+}
+
+/* ── Bottom CTA Banner (compact bar) ─────────────────────────────── */
+function BottomCTA({ onAdd }) {
+  return (
+    <div className="flex items-center gap-2 rounded-xl border border-[#ECE7DD] bg-white px-2.5 py-2 shadow-sm">
+      <span className="flex size-7 items-center justify-center rounded-full bg-[#E5EBDD] shrink-0">
+        <MapPin className="size-3.5 text-[#485635]" />
+      </span>
+      <p className="flex-1 min-w-0 text-[11px] font-semibold text-ink-700 truncate">
+        Explore more great food spots
+      </p>
+      <button
+        type="button"
+        onClick={onAdd}
+        className="inline-flex items-center gap-1 shrink-0 rounded-full bg-[#D96B43] hover:bg-[#C45A35] text-white px-2.5 py-1.5 text-[11px] font-bold shadow-sm transition-colors"
+      >
+        <Plus className="size-3 stroke-[2.5]" />
+        Add
+      </button>
+    </div>
+  );
+}
+
+/* ── Main Page ───────────────────────────────────────────────────── */
 export default function HomePage() {
-  const { t } = useI18n();
-  const { selectedId, setSelectedId, geo, locate } = usePlaces();
-  const { visible, counts, totals } = useFilteredPlaces();
-  const selected = selectedId ? visible.find((place) => place.id === selectedId) ?? null : null;
+  const { lang, t, formatDistance } = useI18n();
+  const { user } = useAuth();
+  const {
+    status,
+    places,
+    reload,
+    selectedId,
+    setSelectedId,
+    geo,
+    locate,
+    openAdd,
+    removePlace,
+  } = usePlaces();
+
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeStatus, setActiveStatus] = useState("all");
+  const [panelOpen, setPanelOpen] = useState(true); // toggle untuk panel kiri
+
+  // Counts
+  const counts = useMemo(() => {
+    const wishlist = places.filter((p) => p.status === "wishlist").length;
+    const visited = places.filter((p) => p.status === "visited").length;
+    return { all: places.length, wishlist, visited, priority: 0 };
+  }, [places]);
+
+  // Filtered + sorted places
+  const visiblePlaces = useMemo(() => {
+    let result = [...places];
+
+    if (activeStatus === "wishlist") result = result.filter((p) => p.status === "wishlist");
+    else if (activeStatus === "visited") result = result.filter((p) => p.status === "visited");
+
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      result = result.filter((p) => {
+        return (
+          p.name?.toLowerCase().includes(q) ||
+          p.address?.toLowerCase().includes(q) ||
+          p.notes?.toLowerCase().includes(q) ||
+          p.tags?.some((tag) => tag.name.toLowerCase().includes(q))
+        );
+      });
+    }
+
+    return sortPlaces(result, "nearest");
+  }, [places, activeStatus, searchQuery]);
+
+  const selectedPlace = selectedId
+    ? visiblePlaces.find((p) => p.id === selectedId) ?? null
+    : null;
 
   const onSelect = useCallback((id) => setSelectedId(id), [setSelectedId]);
   const renderPopup = useCallback(
-    (place) => <PlacePopup place={place} onClose={() => setSelectedId(null)} />,
-    [setSelectedId],
+    (place) => null, // We don't use map popups anymore, using the right panel instead
+    [],
   );
 
-  // Keep the selected card visible in the desktop list when a marker is clicked.
+  // Scroll the list card into view when a marker is clicked
   useEffect(() => {
     if (!selectedId) return;
-    document.getElementById(`place-card-${selectedId}`)?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    document.getElementById(`nearby-card-${selectedId}`)?.scrollIntoView({
+      block: "nearest",
+      behavior: "smooth",
+    });
   }, [selectedId]);
 
+  const handleDeletePlace = async (place) => {
+    if (window.confirm(`Hapus "${place.name}" dari daftar?`)) {
+      try {
+        await api.deletePlace(place.id);
+        removePlace(place.id);
+      } catch {
+        alert("Gagal menghapus restoran. Coba lagi.");
+      }
+    }
+  };
+
+  const displayName = user?.username || "Stefanus";
+
   return (
-    <div className="relative h-[calc(100dvh-4.5rem)] lg:grid lg:grid-cols-[26rem_1fr] lg:gap-6 lg:p-6">
-      <section className="hidden min-h-0 flex-col lg:flex" aria-labelledby="home-title">
-        <h1 id="home-title" className="text-[26px] font-bold leading-tight text-ink-900">
-          {t("home.title")}
-        </h1>
-        <p className="mt-1 text-[13px] text-ink-500">{t("home.summary", { total: totals.all, visited: totals.visited })}</p>
-        <div className="mt-5">
-          <PlaceFilters counts={counts} />
-        </div>
-        {/* `relative` keeps absolutely positioned descendants (sr-only labels) inside the scroller's clip. */}
-        <div className="relative -mx-2 mt-4 min-h-0 flex-1 overflow-y-auto px-2 pb-2 pt-1">
-          <PanelList visible={visible} selectedId={selected?.id ?? null} onSelect={onSelect} />
-        </div>
-        {visible.length > 0 ? (
-          <Link
-            href="/list/"
-            className="mt-3 inline-flex items-center justify-center gap-1.5 self-center text-[13px] font-bold text-primary-800 hover:underline"
-          >
-            {t("home.seeAll")}
-            <ArrowRight className="size-3.5" aria-hidden="true" />
-          </Link>
-        ) : null}
-      </section>
+    <div className="min-h-screen bg-[#FAF8F3] text-ink-900 flex flex-col lg:flex-row">
+      {/* 1. Left Sidebar (matches list page) */}
+      <AppSidebar
+        counts={counts}
+        activeStatus={activeStatus}
+        onSelectStatus={setActiveStatus}
+        className="hidden lg:flex h-screen sticky top-0"
+      />
 
-      <section
-        className="absolute inset-0 lg:relative lg:inset-auto lg:min-h-0 lg:overflow-hidden lg:rounded-[1.25rem] lg:border lg:border-line"
-        aria-label={t("map.label")}
-      >
-        <MapView
-          places={visible}
-          selectedId={selected?.id ?? null}
-          onSelect={onSelect}
-          geo={geo}
-          onLocate={locate}
-          renderPopup={renderPopup}
-          controlsClassName={selected ? "bottom-60 lg:bottom-6" : "bottom-28 lg:bottom-6"}
-          attributionOffset={selected ? "11.75rem" : "5.25rem"}
+      {/* 2. Main Area */}
+      <div className="flex-1 min-w-0 flex flex-col h-screen">
+        {/* Top Navbar (same as list page) — search bar nempel ke kiri */}
+        <TopSearchBar
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          className="border-b border-[#EAE5D9]/70 bg-[#FAF8F3]/80 backdrop-blur-sm sticky top-0 z-30 shrink-0 [&>div]:justify-start [&>div]:mx-0 [&_input]:mx-0 [&_form]:mx-0 [&_input]:max-w-md [&_form]:max-w-md"
         />
-      </section>
 
-      <div className="absolute inset-x-0 top-0 z-[950] px-4 pt-[max(1rem,env(safe-area-inset-top))] lg:hidden">
-        <h1 className="sr-only">{t("home.title")}</h1>
-        <PlaceFilters variant="floating" counts={counts} />
+        {/* Content: Map as background + floating panels */}
+        <div className="flex-1 min-h-0 relative overflow-hidden">
+          {/* Map — full area background */}
+          <div className="absolute inset-0">
+            <MapView
+              places={visiblePlaces}
+              selectedId={selectedPlace?.id ?? null}
+              onSelect={onSelect}
+              geo={geo}
+              onLocate={locate}
+              renderPopup={renderPopup}
+              controlsClassName={`bottom-6 right-6 w-fit ${
+                selectedPlace ? "xl:right-[22rem]" : ""
+              }`}
+              attributionOffset="0px"
+            />
+          </div>
+
+          {/* Toggle Button — floating di KIRI ATAS map */}
+          <button
+            type="button"
+            onClick={() => setPanelOpen((v) => !v)}
+            className="hidden lg:flex absolute top-4 left-4 z-[950] items-center gap-2 rounded-xl bg-white/95 backdrop-blur-md border border-[#EAE5D9] shadow-lg px-3 py-2 text-xs font-bold text-ink-800 hover:bg-white transition-colors"
+            aria-label={panelOpen ? "Hide panel" : "Show panel"}
+          >
+            {panelOpen ? (
+              <PanelLeftClose className="size-4" />
+            ) : (
+              <PanelLeftOpen className="size-4" />
+            )}
+            <span>{panelOpen ? "Hide" : "Show"} Panel</span>
+          </button>
+
+          {/* Left Floating Panel (Desktop) */}
+          {panelOpen && (
+            <div className="hidden lg:flex flex-col absolute top-16 left-4 bottom-4 w-[22rem] z-[900] bg-white/95 backdrop-blur-md rounded-2xl shadow-xl border border-[#EAE5D9] overflow-hidden">
+              {/* Greeting Card (compact) */}
+              <div className="px-4 pt-4 pb-3">
+                <div className="rounded-xl border border-[#ECE7DD] bg-white px-3 py-3 shadow-sm">
+                  <p className="text-[13px] text-ink-700 leading-tight">
+                    <span className="text-sm">🌿</span>{" "}
+                    <span className="font-bold text-ink-900">{getGreeting(lang)}, {displayName}!</span>{" "}
+                    <span className="text-[12px]">🌟</span>
+                  </p>
+                  <p className="text-[10.5px] text-ink-500 mt-0.5 leading-snug">
+                    Here are some of your saved restaurants nearby.
+                  </p>
+                  <div className="mt-3">
+                    <StatsRow counts={counts} />
+                  </div>
+                </div>
+              </div>
+
+              {/* Nearby Restaurants */}
+              <div className="px-4 flex items-center justify-between mb-2">
+                <h2 className="text-sm font-extrabold text-ink-900">Nearby Restaurants</h2>
+                <Link
+                  href="/list/"
+                  className="text-[11px] font-bold text-primary-700 hover:underline flex items-center gap-0.5"
+                >
+                  View all <ChevronRight className="size-3" />
+                </Link>
+              </div>
+
+              {/* Scrollable List */}
+              <div className="flex-1 min-h-0 overflow-y-auto px-2 pb-2">
+                {status === "loading" ? (
+                  <div className="flex flex-col gap-2 px-2">
+                    {[0, 1, 2, 3].map((k) => (
+                      <PlaceCardSkeleton key={k} compact />
+                    ))}
+                  </div>
+                ) : status === "error" ? (
+                  <div className="px-2">
+                    <EmptyState kind="error" onRetry={reload} />
+                  </div>
+                ) : visiblePlaces.length === 0 ? (
+                  <div className="px-2">
+                    <EmptyState kind="empty" />
+                  </div>
+                ) : (
+                  <div className="flex flex-col gap-0.5">
+                    {visiblePlaces.map((place) => (
+                      <div key={place.id} id={`nearby-card-${place.id}`}>
+                        <NearbyCard
+                          place={place}
+                          selected={place.id === selectedId}
+                          onSelect={onSelect}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Bottom CTA (compact) */}
+              <div className="px-3 pb-3 pt-1 shrink-0">
+                <BottomCTA onAdd={openAdd} />
+              </div>
+            </div>
+          )}
+
+          {/* Right Floating Detail Panel (Desktop, shown when a place is selected) */}
+          {selectedPlace && (
+            <div className="hidden xl:block absolute top-4 right-4 bottom-4 w-80 z-[900]">
+              <DetailPanel
+                place={selectedPlace}
+                onClose={() => setSelectedId(null)}
+                onDelete={handleDeletePlace}
+              />
+            </div>
+          )}
+
+          {/* Mobile Bottom Sheet */}
+          <div className="lg:hidden absolute inset-x-0 bottom-0 z-[950]">
+            <MobileBottomSheet
+              places={visiblePlaces}
+              selected={selectedPlace}
+              counts={counts}
+              status={status}
+              onSelect={onSelect}
+              onClose={() => setSelectedId(null)}
+              onAdd={openAdd}
+            />
+          </div>
+        </div>
       </div>
+    </div>
+  );
+}
 
-      <MobileSheet selected={selected} count={visible.length} />
+/* ── Mobile Bottom Sheet ─────────────────────────────────────────── */
+function MobileBottomSheet({ places, selected, counts, status, onSelect, onClose, onAdd }) {
+  const { t, formatDistance } = useI18n();
+
+  if (selected) {
+    return (
+      <div className="rounded-t-3xl bg-white px-5 pb-5 pt-3 shadow-sheet">
+        <span className="mx-auto mb-3 block h-1 w-10 rounded-full bg-line-strong" aria-hidden="true" />
+        <div className="flex items-center gap-4" aria-live="polite">
+          <PlaceThumb place={selected} className="size-[4.5rem]" iconClassName="size-8" />
+          <div className="min-w-0 flex-1">
+            <h2 className="truncate text-base font-bold text-ink-900">{selected.name}</h2>
+            <p className="truncate text-xs text-ink-500">
+              {[shortArea(selected.address), formatDistance(selected.distanceKm)].filter(Boolean).join(" · ")}
+            </p>
+            <div className="mt-2 flex items-center gap-2">
+              <StatusBadge status={selected.status} />
+              <RatingPill value={selected.rating} />
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="shrink-0 size-8 rounded-full flex items-center justify-center text-ink-500 hover:bg-stone-100"
+          >
+            <X className="size-4" />
+          </button>
+        </div>
+        <div className="grid grid-cols-2 gap-2 mt-4">
+          <Link
+            href={`/places/detail/?id=${encodeURIComponent(selected.id)}`}
+            className="btn btn-outline btn-sm"
+          >
+            {t("place.detail")}
+          </Link>
+          <a
+            href={directionsUrl(selected)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn btn-primary btn-sm"
+          >
+            {t("place.directions")}
+            <ExternalLink className="size-3.5" />
+          </a>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="rounded-t-3xl bg-white px-5 pb-5 pt-3 shadow-sheet">
+      <span className="mx-auto mb-3 block h-1 w-10 rounded-full bg-line-strong" aria-hidden="true" />
+      <div className="flex items-center justify-between gap-3">
+        <p className="flex items-center gap-2 text-sm font-semibold text-ink-900">
+          <MapPin className="size-4 text-primary-700" aria-hidden="true" />
+          {status === "loading" ? t("app.loading") : t("home.restaurantsShown", { count: places.length })}
+        </p>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={onAdd}
+            className="btn btn-sm btn-primary"
+          >
+            <Plus className="size-3.5" />
+            Add
+          </button>
+          <Link href="/list/" className="btn btn-sm btn-outline">
+            {t("nav.list")}
+            <ArrowRight className="size-3.5" />
+          </Link>
+        </div>
+      </div>
     </div>
   );
 }

@@ -131,7 +131,11 @@ export default function AppShell({ children }) {
     else if (token && isPublic) router.replace("/");
   }, [hydrated, token, isPublic, router]);
 
-  const isListPage = path === "/list";
+  // Halaman yang punya layout custom (render header/sidebar sendiri)
+  const isCustomLayout =
+    path === "/list" ||
+    path === "/" ||
+    path.startsWith("/places/detail");
 
   if (!hydrated || (!token && !isPublic) || (token && isPublic)) return <Splash />;
 
@@ -145,11 +149,11 @@ export default function AppShell({ children }) {
       >
         {t("nav.skipToContent")}
       </a>
-      {!isListPage && <DesktopHeader path={path} />}
-      <main id="main" className={`flex-1 ${isListPage ? "pb-16 lg:pb-0" : "pb-[4.5rem] lg:pb-0"}`}>
+      {!isCustomLayout && <DesktopHeader path={path} />}
+      <main id="main" className={`flex-1 ${isCustomLayout ? "pb-16 lg:pb-0" : "pb-[4.5rem] lg:pb-0"}`}>
         {children}
       </main>
-      <BottomNav path={path} />
+      {!isCustomLayout && <BottomNav path={path} />}
       <AddPlaceModal />
     </div>
   );

@@ -279,3 +279,6 @@ Mockup ada di `design/`. Panduan warna, tipografi, dan komponen ada di `DESIGN.m
 Saran Next
 - Warna Diperbaiki
 - Tambahin Detail Seperti Jam Buka dan yang lainnya di detail
+- Hapus tombol edit yang ada dibawah di halaman detail, tambahain tombol edit atau pensil di sebelah kanan nama restaurant untuk edit nama, rating, dan harga
+- Tombol edit yang di notes ntuk edit noted, tanggal visited dan tags
+- Buat modal aja jangan form 
