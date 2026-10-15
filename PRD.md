@@ -282,3 +282,4 @@ Saran Next
 - Hapus tombol edit yang ada dibawah di halaman detail, tambahain tombol edit atau pensil di sebelah kanan nama restaurant untuk edit nama, rating, dan harga
 - Tombol edit yang di notes ntuk edit noted, tanggal visited dan tags
 - Buat modal aja jangan form 
+- Tambah filter di list untuk restorant yang masih buka sekarang, ambil api jam sekarang lalu cari restorant yang masih buka di jam sekarang

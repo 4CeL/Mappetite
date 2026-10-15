@@ -445,12 +445,16 @@ function PlaceDetail() {
                               {distance} away
                             </span>
                           )}
-                          {place.opening_hours?.weekday_text?.[0] && (
+                          {/* {place.opening_hours?.weekday_text?.[0] && (
                             <span className="inline-flex items-center gap-1.5">
                               <Clock className="size-3.5 text-ink-400" />
                               {place.opening_hours.weekday_text[0]}
                             </span>
-                          )}
+                          )} */}
+                          <span className="flex items-center gap-1 text-[11px] text-ink-500 min-w-0">
+                            <Clock className="size-3.5 shrink-0" />
+                            <span className="truncate">10.00–23.00</span>
+                          </span>
                         </div>
 
                         {visited && place.rating != null && (

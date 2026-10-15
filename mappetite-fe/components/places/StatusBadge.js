@@ -13,7 +13,7 @@ export default function StatusBadge({ status, long = false, className = "" }) {
   return (
     <span
       className={`inline-flex shrink-0 items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-bold leading-none ${
-        visited ? "bg-visited-50 text-visited-700" : "bg-primary-50 text-primary-800"
+        visited ? "bg-primary-50 text-primary-700" : "bg-visited-50 text-visited-800"
       } ${className}`}
     >
       <Icon className="size-3" strokeWidth={visited ? 3 : 2.5} aria-hidden="true" />
