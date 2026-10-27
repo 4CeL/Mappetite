@@ -58,7 +58,7 @@ export default function Modal({ open, onClose, title, description, children, foo
   const sheet = variant === "sheet";
 
   return (
-    <div className={`fixed inset-0 z-[1100] flex justify-center ${sheet ? "items-end sm:items-center" : "items-center"} p-0 sm:p-6`}>
+    <div className={`fixed inset-0 z-[1200] flex justify-center ${sheet ? "items-end sm:items-center" : "items-center"} p-0 sm:p-6`}>
       <div className="absolute inset-0 bg-ink-900/50" aria-hidden="true" onClick={onClose} />
       <div
         ref={panelRef}

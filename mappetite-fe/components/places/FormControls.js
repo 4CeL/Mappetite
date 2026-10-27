@@ -1,7 +1,7 @@
 "use client";
 
 import { Plus, X } from "lucide-react";
-import { useId, useState } from "react";
+import { useId, useRef, useState } from "react";
 
 import { LIMITS } from "@/lib/config";
 import { useI18n } from "@/lib/i18n";
@@ -55,15 +55,19 @@ export function TagInput({ value, onChange, suggestions = [] }) {
   const { t } = useI18n();
   const [draft, setDraft] = useState("");
   const inputId = useId();
+  const inputRef = useRef(null);
+  const isInteractingRef = useRef(false);
   const full = value.length >= LIMITS.tagsPerPlace;
 
   const add = (raw) => {
-    const name = raw.trim().replace(/\s+/g, " ").slice(0, LIMITS.tag);
-    if (!name || full || value.some((tag) => tag.toLowerCase() === name.toLowerCase())) {
+    const trimmed = raw.trim().replace(/\s+/g, " ").slice(0, LIMITS.tag);
+    if (!trimmed || full || value.some((tag) => tag.toLowerCase() === trimmed.toLowerCase())) {
       setDraft("");
       return;
     }
-    onChange([...value, name]);
+    // Prefer the canonical casing from existing suggestions if matched
+    const canonical = suggestions.find((s) => s.toLowerCase() === trimmed.toLowerCase()) || trimmed;
+    onChange([...value, canonical]);
     setDraft("");
   };
 
@@ -75,6 +79,22 @@ export function TagInput({ value, onChange, suggestions = [] }) {
       add(draft);
     } else if (event.key === "Backspace" && !draft && value.length) {
       remove(value[value.length - 1]);
+    }
+  };
+
+  const onBlur = (event) => {
+    // If the user clicked/tapped a suggestion button or remove tag button, do not commit draft
+    if (isInteractingRef.current) {
+      return;
+    }
+    if (
+      event?.relatedTarget &&
+      (event.relatedTarget.dataset?.tagAction || event.relatedTarget.closest?.("[data-tag-action]"))
+    ) {
+      return;
+    }
+    if (draft.trim()) {
+      add(draft);
     }
   };
 
@@ -95,6 +115,8 @@ export function TagInput({ value, onChange, suggestions = [] }) {
             {tag}
             <button
               type="button"
+              data-tag-action="true"
+              onMouseDown={(e) => e.preventDefault()}
               onClick={() => remove(tag)}
               className="flex size-5 items-center justify-center rounded-full hover:bg-line"
               aria-label={t("add.removeTag", { name: tag })}
@@ -104,11 +126,12 @@ export function TagInput({ value, onChange, suggestions = [] }) {
           </span>
         ))}
         <input
+          ref={inputRef}
           id={inputId}
           value={draft}
           onChange={(event) => setDraft(event.target.value)}
           onKeyDown={onKeyDown}
-          onBlur={() => draft && add(draft)}
+          onBlur={onBlur}
           placeholder={full ? t("add.tagLimit", { max: LIMITS.tagsPerPlace }) : t("add.tagPlaceholder")}
           disabled={full}
           maxLength={LIMITS.tag}
@@ -123,8 +146,23 @@ export function TagInput({ value, onChange, suggestions = [] }) {
             <button
               key={name}
               type="button"
-              onClick={() => add(name)}
-              className="inline-flex items-center gap-1 rounded-full border border-dashed border-line-strong px-2.5 py-1 text-xs text-ink-600 hover:bg-chip"
+              data-tag-action="true"
+              onMouseDown={(e) => {
+                // Prevent input from losing focus on desktop so blur doesn't fire before click
+                e.preventDefault();
+              }}
+              onPointerDown={() => {
+                isInteractingRef.current = true;
+                setTimeout(() => {
+                  isInteractingRef.current = false;
+                }, 300);
+              }}
+              onClick={() => {
+                isInteractingRef.current = false;
+                add(name);
+                inputRef.current?.focus();
+              }}
+              className="inline-flex items-center gap-1 rounded-full border border-dashed border-line-strong px-2.5 py-1 text-xs text-ink-600 hover:bg-chip cursor-pointer"
             >
               <Plus className="size-3" aria-hidden="true" />
               {name}

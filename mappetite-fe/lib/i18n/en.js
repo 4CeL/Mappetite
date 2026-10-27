@@ -161,20 +161,27 @@ const en = {
   "map.myLocation": "My location",
   "map.cluster": "{count} restaurants",
 
-  "settings.title": "Profile",
+  "settings.title": "Settings",
+  "settings.pageTitle": "Account Settings",
+  "settings.pageSubtitle": "Manage your profile, language preferences, and tags.",
   "settings.account": "Account",
   "settings.saveProfile": "Save",
   "settings.profileSaved": "Profile updated.",
   "settings.signedInWith": "Signed in with {provider}",
   "settings.providerLocal": "email & password",
   "settings.providerGoogle": "Google",
-  "settings.tags": "Manage tags",
+  "settings.tags": "Manage Tags",
   "settings.tagsHint": "Rename or delete tags. Deleting a tag doesn't delete its restaurants.",
   "settings.tagUsage": "{count} restaurants",
   "settings.rename": "Rename",
   "settings.deleteTagConfirm": "Delete tag \"{name}\"?",
-  "settings.noTags": "No tags yet.",
-  "settings.language": "Display language",
+  "settings.noTags": "No tags yet",
+  "settings.noTagsHint": "Tags will appear here once you add them to your restaurants.",
+  "settings.language": "Display Language",
+  "settings.languageHint": "Choose your preferred display language.",
+  "settings.selectLanguage": "Select language",
+  "settings.dangerZone": "Sign Out",
+  "settings.dangerHint": "Sign out from your account on this device.",
 
   "common.retry": "Try again",
   "common.save": "Save",
@@ -225,6 +232,54 @@ const en = {
   "errors.tags.exists": "A tag with this name already exists.",
   "errors.tags.not_found": "Tag not found.",
   "errors.unknown": "Something went wrong. Please try again.",
+
+  // Navigation & Layout
+  "nav.restaurants": "Restaurants",
+  "nav.collection": "Collection",
+  "nav.myLists": "My Lists",
+
+  // Top Search Bar
+  "topbar.searchPlaceholder": "Search restaurants, tags, or locations...",
+  "topbar.profileSettings": "Profile Settings",
+  "topbar.language": "Language",
+  "topbar.switchTo": "Switch to {lang}",
+  "topbar.notifications": "Notifications",
+
+  // Map & Home Page
+  "home.goodMorning": "Good morning",
+  "home.goodAfternoon": "Good afternoon",
+  "home.goodEvening": "Good evening",
+  "home.goodNight": "Good evening",
+  "home.nearbySubtitle": "Here are some of your saved restaurants nearby.",
+  "home.nearbyTitle": "Nearby Restaurants",
+  "home.viewAll": "View all",
+  "home.showPanel": "Show Panel",
+  "home.hidePanel": "Hide Panel",
+  "home.bottomCtaTitle": "Found a good spot?",
+  "home.bottomCtaSubtitle": "Paste a Google Maps link to save it instantly.",
+  "home.bottomCtaButton": "+ Add Place",
+
+  // Detail Panel
+  "detail.title": "Restaurant Details",
+  "detail.visitStatus": "Visit Status",
+  "detail.moreDetails": "More Details",
+  "detail.deleteConfirm": "Delete \"{name}\" from list?",
+  "detail.deleteFailed": "Failed to delete restaurant. Try again.",
+
+  // List Page
+  "list.title": "My Restaurants",
+  "list.subtitle": "Your collection of amazing places to eat.",
+  "list.totalCount": "{count} restaurants in total.",
+
+  // Filters Sidebar
+  "filters.sidebarTitle": "Filters",
+  "filters.searchTags": "Search tags…",
+  "filters.noMatchingTags": "No matching tags",
+  "filters.showMore": "Show more",
+  "filters.showLess": "Show less",
+  "filters.location": "Location",
+  "filters.searchLocation": "Search location…",
+  "filters.noLocations": "No location data yet",
 };
 
 export default en;

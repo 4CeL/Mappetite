@@ -213,7 +213,7 @@ export default function ListPage() {
         <TopSearchBar
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
-          className="border-b border-[#EAE5D9]/70 bg-[#FAF8F3]/80 backdrop-blur-sm sticky top-0 z-30"
+          className="border-b border-[#EAE5D9]/70 bg-[#FAF8F3]/80 backdrop-blur-sm sticky top-0 z-[1050]"
         />
 
         {/* Content Area under Navbar (Center list + Right Filter Card) */}
@@ -224,11 +224,11 @@ export default function ListPage() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
               <div>
                 <h1 className="text-2xl sm:text-[28px] font-extrabold text-ink-900 tracking-tight">
-                  My Restaurants
+                  {t("list.title")}
                 </h1>
                 <p className="text-xs sm:text-sm text-ink-500 mt-1">
-                  Your collection of amazing places to eat.{" "}
-                  <span className="font-semibold text-ink-700">{counts.all} restaurants in total.</span>
+                  {t("list.subtitle")}{" "}
+                  <span className="font-semibold text-ink-700">{t("list.totalCount", { count: counts.all })}</span>
                 </p>
               </div>
 
@@ -238,7 +238,7 @@ export default function ListPage() {
                 className="inline-flex items-center justify-center gap-2 rounded-full bg-[#485635] hover:bg-[#3B472A] text-white px-5 py-2.5 text-xs sm:text-sm font-bold shadow-sm transition-all hover:shadow-md shrink-0 self-start sm:self-auto"
               >
                 <Plus className="size-4 stroke-[2.5]" aria-hidden="true" />
-                <span>Add Restaurant</span>
+                <span>{t("nav.addPlace")}</span>
               </button>
             </div>
 
@@ -256,7 +256,7 @@ export default function ListPage() {
                       : "bg-[#EFECE3] text-ink-700 hover:bg-[#E5E1D5]"
                   }`}
                 >
-                  <span>All</span>
+                  <span>{t("status.all")}</span>
                   <span className={`text-[11px] ${activeStatus === "all" ? "text-stone-300" : "text-ink-400"}`}>
                     {counts.all}
                   </span>
@@ -273,7 +273,7 @@ export default function ListPage() {
                   }`}
                 >
                   <span className="size-2 rounded-full bg-[#D96B43]" />
-                  <span>Want to Visit</span>
+                  <span>{t("status.wishlistLong")}</span>
                   <span className="text-[11px] text-ink-400 font-normal">{counts.wishlist}</span>
                 </button>
 
@@ -288,7 +288,7 @@ export default function ListPage() {
                   }`}
                 >
                   <Check className="size-3 stroke-[3] text-[#4E8746]" />
-                  <span>Visited</span>
+                  <span>{t("status.visitedLong")}</span>
                   <span className="text-[11px] text-ink-400 font-normal">{counts.visited}</span>
                 </button>
               </div>
@@ -302,7 +302,7 @@ export default function ListPage() {
                   className="xl:hidden inline-flex items-center gap-1.5 rounded-xl border border-[#E0DBCB] bg-white px-3 py-1.5 text-xs font-semibold text-ink-700 hover:bg-stone-50"
                 >
                   <SlidersHorizontal className="size-3.5" />
-                  <span>Filters</span>
+                  <span>{t("filters.sidebarTitle")}</span>
                   {(selectedTagIds.length > 0 || selectedLocations.length > 0) && (
                     <span className="size-2 rounded-full bg-primary-700" />
                   )}
@@ -310,17 +310,17 @@ export default function ListPage() {
 
                 {/* Sort By Dropdown */}
                 <div className="flex items-center gap-1.5 text-xs text-ink-500">
-                  <span className="hidden sm:inline">Sort by</span>
+                  <span className="hidden sm:inline">{t("filters.sort")}</span>
                   <select
                     value={sortBy}
                     onChange={handleSortChange}
                     className="rounded-xl border border-[#E0DBCB] bg-white px-2.5 py-1.5 text-xs font-bold text-ink-800 focus:border-primary-700 focus:outline-none"
                   >
-                    <option value="newest">Recently added</option>
-                    <option value="rating">Highest rated</option>
-                    <option value="nearest">Nearest to me</option>
-                    <option value="name">Name (A–Z)</option>
-                    <option value="oldest">Oldest first</option>
+                    <option value="newest">{t("sort.newest")}</option>
+                    <option value="rating">{t("sort.rating")}</option>
+                    <option value="nearest">{t("sort.nearest")}</option>
+                    <option value="name">{t("sort.name")}</option>
+                    <option value="oldest">{t("sort.oldest")}</option>
                   </select>
                 </div>
 

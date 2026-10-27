@@ -39,40 +39,74 @@ import { openInMapsUrl, directionsUrl } from "@/lib/maps";
 import { api } from "@/lib/api";
 
 /* ── Greeting helper ─────────────────────────────────────────────── */
-function getGreeting(lang) {
+function getGreeting(t) {
   const hour = new Date().getHours();
-  if (lang === "en") {
-    if (hour < 12) return "Good morning";
-    if (hour < 17) return "Good afternoon";
-    return "Good evening";
-  }
-  if (hour < 12) return "Selamat pagi";
-  if (hour < 15) return "Selamat siang";
-  if (hour < 18) return "Selamat sore";
-  return "Selamat malam";
+  if (hour < 12) return t("home.goodMorning");
+  if (hour < 15) return t("home.goodAfternoon");
+  if (hour < 18) return t("home.goodEvening");
+  return t("home.goodNight");
 }
 
-/* ── Stats Row (compact) ─────────────────────────────────────────── */
-function StatsRow({ counts }) {
+/* ── Stats Row (compact, interactive filter) ─────────────────────── */
+function StatsRow({ counts, activeStatus = "all", onSelectStatus }) {
+  const { t } = useI18n();
   const items = [
-    { icon: Bookmark, color: "#D96B43", bg: "#FCE8DE", label: "Want to Visit", value: counts.wishlist },
-    { icon: Check, color: "#4E8746", bg: "#E0EEDD", label: "Visited", value: counts.visited },
+    {
+      id: "wishlist",
+      icon: Bookmark,
+      color: "#D96B43",
+      bg: "#FCE8DE",
+      activeBg: "bg-[#FDF1EB] border-[#FADCD0] ring-2 ring-[#D96B43]/20 shadow-xs",
+      label: t("status.wishlistLong"),
+      value: counts.wishlist,
+    },
+    {
+      id: "visited",
+      icon: Check,
+      color: "#4E8746",
+      bg: "#E0EEDD",
+      activeBg: "bg-[#EDF4EB] border-[#DCEDD9] ring-2 ring-[#4E8746]/20 shadow-xs",
+      label: t("status.visitedLong"),
+      value: counts.visited,
+    },
   ];
 
   return (
-    <div className="flex items-center justify-between gap-3">
-      {items.map((item) => (
-        <div key={item.label} className="flex flex-col items-center gap-1 min-w-0 flex-1">
-          <span
-            className="flex size-7 items-center justify-center rounded-full"
-            style={{ backgroundColor: item.bg }}
+    <div className="flex items-center justify-between gap-2.5">
+      {items.map((item) => {
+        const isActive = activeStatus === item.id;
+        return (
+          <button
+            key={item.id}
+            type="button"
+            onClick={() => onSelectStatus?.(isActive ? "all" : item.id)}
+            className={`group flex flex-col items-center gap-1 min-w-0 flex-1 py-2 px-1.5 rounded-xl border transition-all cursor-pointer ${
+              isActive
+                ? `${item.activeBg} font-bold`
+                : "border-[#ECE7DD] bg-white hover:bg-[#FAF8F3] hover:border-[#DED8CB]"
+            }`}
+            aria-pressed={isActive}
+            aria-label={`${item.label} (${item.value})`}
           >
-            <item.icon className="size-3.5" style={{ color: item.color }} strokeWidth={2.5} />
-          </span>
-          <span className="text-base font-extrabold text-ink-900 leading-none">{item.value}</span>
-          <span className="text-[10px] text-ink-500 font-medium truncate">{item.label}</span>
-        </div>
-      ))}
+            <span
+              className={`flex size-7 items-center justify-center rounded-full transition-transform ${
+                isActive ? "scale-110 shadow-xs" : "group-hover:scale-105"
+              }`}
+              style={{ backgroundColor: item.bg }}
+            >
+              <item.icon className="size-3.5" style={{ color: item.color }} strokeWidth={2.5} />
+            </span>
+            <span className="text-base font-extrabold text-ink-900 leading-none">{item.value}</span>
+            <span
+              className={`text-[10.5px] truncate transition-colors ${
+                isActive ? "font-bold text-ink-900" : "font-medium text-ink-500 group-hover:text-ink-700"
+              }`}
+            >
+              {item.label}
+            </span>
+          </button>
+        );
+      })}
     </div>
   );
 }
@@ -146,9 +180,9 @@ function DetailPanel({ place, onClose, onDelete }) {
   const distance = formatDistance(place.distanceKm);
 
   const actionButtons = [
-    { icon: Bookmark, label: "Save" },
-    { icon: Navigation, label: "Open in Maps", href: openInMapsUrl(place) },
-    { icon: Share2, label: "Share" },
+    { icon: Bookmark, label: t("common.save") },
+    { icon: Navigation, label: t("place.openInMaps"), href: openInMapsUrl(place) },
+    { icon: Share2, label: t("place.more") },
   ];
 
   return (
@@ -170,65 +204,15 @@ function DetailPanel({ place, onClose, onDelete }) {
         <div className="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-black/40 to-transparent pointer-events-none" />
 
         {/* Top controls — overlay di atas gambar */}
-        <div className="absolute inset-x-0 top-0 flex items-center justify-between p-3">
+        <div className="absolute inset-x-0 top-0 flex items-center justify-end p-3">
           <button
             type="button"
             onClick={onClose}
             className="flex size-9 items-center justify-center rounded-full bg-white/90 backdrop-blur-sm text-ink-700 hover:bg-white shadow-sm transition-colors"
-            aria-label="Close"
+            aria-label={t("common.close")}
           >
             <X className="size-4" />
           </button>
-          <div className="relative">
-            <button
-              type="button"
-              onClick={() => setMenuOpen(!menuOpen)}
-              className="flex size-9 items-center justify-center rounded-full bg-white/90 backdrop-blur-sm text-ink-700 hover:bg-white shadow-sm transition-colors"
-              aria-label="More options"
-            >
-              <MoreHorizontal className="size-4" />
-            </button>
-            {menuOpen && (
-              <>
-                <div className="fixed inset-0 z-40" onClick={() => setMenuOpen(false)} />
-                <div className="absolute right-0 top-full mt-1 z-50 w-44 rounded-xl border border-line bg-white py-1.5 shadow-lg">
-                  <Link
-                    href={`/places/detail/?id=${encodeURIComponent(place.id)}`}
-                    className="flex items-center gap-2 px-3 py-2 text-xs text-ink-800 hover:bg-stone-50"
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    <Edit2 className="size-3.5 text-ink-500" />
-                    Detail & Edit
-                  </Link>
-                  {place.google_maps_url && (
-                    <a
-                      href={place.google_maps_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-2 px-3 py-2 text-xs text-ink-800 hover:bg-stone-50"
-                      onClick={() => setMenuOpen(false)}
-                    >
-                      <Navigation className="size-3.5 text-primary-600" />
-                      Rute di Google Maps
-                    </a>
-                  )}
-                  {onDelete && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setMenuOpen(false);
-                        onDelete(place);
-                      }}
-                      className="flex w-full items-center gap-2 px-3 py-2 text-left text-xs text-danger-600 hover:bg-danger-50"
-                    >
-                      <Trash2 className="size-3.5 text-danger-600" />
-                      Hapus Restoran
-                    </button>
-                  )}
-                </div>
-              </>
-            )}
-          </div>
         </div>
       </div>
 
@@ -288,7 +272,7 @@ function DetailPanel({ place, onClose, onDelete }) {
 
           {/* Status Dropdown */}
           <div>
-            <h3 className="text-xs font-bold text-ink-800 mb-2">Your Status</h3>
+            <h3 className="text-xs font-bold text-ink-800 mb-2">{t("detail.visitStatus")}</h3>
             <div className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-semibold border ${
               place.status === "visited"
                 ? "border-[#DBEBD7] bg-[#EDF4EB] text-[#4E8746]"
@@ -299,14 +283,14 @@ function DetailPanel({ place, onClose, onDelete }) {
               ) : (
                 <Bookmark className="size-3.5 fill-current" />
               )}
-              <span>{place.status === "visited" ? "Visited" : "Want to Visit"}</span>
+              <span>{place.status === "visited" ? t("status.visitedLong") : t("status.wishlistLong")}</span>
             </div>
           </div>
 
           {/* Tags */}
           {place.tags?.length > 0 && (
             <div>
-              <h3 className="text-xs font-bold text-ink-800 mb-2">Tags</h3>
+              <h3 className="text-xs font-bold text-ink-800 mb-2">{t("filters.tags")}</h3>
               <div className="flex flex-wrap gap-1.5">
                 {place.tags.map((tag) => (
                   <span
@@ -324,7 +308,7 @@ function DetailPanel({ place, onClose, onDelete }) {
           {place.notes && (
             <div>
               <h3 className="text-xs font-bold text-ink-800 mb-2 flex items-center gap-1.5">
-                <span>📝</span> Notes
+                <span>📝</span> {t("place.notes")}
               </h3>
               <div className="rounded-xl bg-white border border-[#ECE7DD] p-3">
                 <p className="text-xs text-ink-600 leading-relaxed whitespace-pre-wrap">{place.notes}</p>
@@ -338,14 +322,14 @@ function DetailPanel({ place, onClose, onDelete }) {
               href={`/places/detail/?id=${encodeURIComponent(place.id)}`}
               className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-[#485635] hover:bg-[#3B472A] text-white px-4 py-3 text-xs font-bold shadow-sm transition-all"
             >
-              <Edit2 className="size-4" /> Detail
+              <Edit2 className="size-4" /> {t("place.detailShort")}
             </Link>
             {onDelete && (
               <button
                 type="button"
                 onClick={() => onDelete(place)}
                 className="flex size-11 items-center justify-center rounded-xl border border-danger-200 bg-danger-50 text-danger-600 hover:bg-danger-100 transition-colors"
-                aria-label="Delete"
+                aria-label={t("common.delete")}
               >
                 <Trash2 className="size-4" />
               </button>
@@ -359,13 +343,14 @@ function DetailPanel({ place, onClose, onDelete }) {
 
 /* ── Bottom CTA Banner (compact bar) ─────────────────────────────── */
 function BottomCTA({ onAdd }) {
+  const { t } = useI18n();
   return (
     <div className="flex items-center gap-2 rounded-xl border border-[#ECE7DD] bg-white px-2.5 py-2 shadow-sm">
       <span className="flex size-7 items-center justify-center rounded-full bg-[#E5EBDD] shrink-0">
         <MapPin className="size-3.5 text-[#485635]" />
       </span>
       <p className="flex-1 min-w-0 text-[11px] font-semibold text-ink-700 truncate">
-        Explore more great food spots
+        {t("home.bottomCtaSubtitle")}
       </p>
       <button
         type="button"
@@ -373,7 +358,7 @@ function BottomCTA({ onAdd }) {
         className="inline-flex items-center gap-1 shrink-0 rounded-full bg-[#D96B43] hover:bg-[#C45A35] text-white px-2.5 py-1.5 text-[11px] font-bold shadow-sm transition-colors"
       >
         <Plus className="size-3 stroke-[2.5]" />
-        Add
+        {t("nav.add")}
       </button>
     </div>
   );
@@ -448,12 +433,12 @@ export default function HomePage() {
   }, [selectedId]);
 
   const handleDeletePlace = async (place) => {
-    if (window.confirm(`Hapus "${place.name}" dari daftar?`)) {
+    if (window.confirm(t("detail.deleteConfirm", { name: place.name }))) {
       try {
         await api.deletePlace(place.id);
         removePlace(place.id);
       } catch {
-        alert("Gagal menghapus restoran. Coba lagi.");
+        alert(t("detail.deleteFailed"));
       }
     }
   };
@@ -476,7 +461,7 @@ export default function HomePage() {
         <TopSearchBar
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
-          className="border-b border-[#EAE5D9]/70 bg-[#FAF8F3]/80 backdrop-blur-sm sticky top-0 z-30 shrink-0 [&>div]:justify-start [&>div]:mx-0 [&_input]:mx-0 [&_form]:mx-0 [&_input]:max-w-md [&_form]:max-w-md"
+          className="border-b border-[#EAE5D9]/70 bg-[#FAF8F3]/80 backdrop-blur-sm sticky top-0 z-[1050] shrink-0"
         />
 
         {/* Content: Map as background + floating panels */}
@@ -502,14 +487,14 @@ export default function HomePage() {
             type="button"
             onClick={() => setPanelOpen((v) => !v)}
             className="hidden lg:flex absolute top-4 left-4 z-[950] items-center gap-2 rounded-xl bg-white/95 backdrop-blur-md border border-[#EAE5D9] shadow-lg px-3 py-2 text-xs font-bold text-ink-800 hover:bg-white transition-colors"
-            aria-label={panelOpen ? "Hide panel" : "Show panel"}
+            aria-label={panelOpen ? t("home.hidePanel") : t("home.showPanel")}
           >
             {panelOpen ? (
               <PanelLeftClose className="size-4" />
             ) : (
               <PanelLeftOpen className="size-4" />
             )}
-            <span>{panelOpen ? "Hide" : "Show"} Panel</span>
+            <span>{panelOpen ? t("home.hidePanel") : t("home.showPanel")}</span>
           </button>
 
           {/* Left Floating Panel (Desktop) */}
@@ -520,26 +505,26 @@ export default function HomePage() {
                 <div className="rounded-xl border border-[#ECE7DD] bg-white px-3 py-3 shadow-sm">
                   <p className="text-[13px] text-ink-700 leading-tight">
                     <span className="text-sm">🌿</span>{" "}
-                    <span className="font-bold text-ink-900">{getGreeting(lang)}, {displayName}!</span>{" "}
+                    <span className="font-bold text-ink-900">{getGreeting(t)}, {displayName}!</span>{" "}
                     <span className="text-[12px]">🌟</span>
                   </p>
                   <p className="text-[10.5px] text-ink-500 mt-0.5 leading-snug">
-                    Here are some of your saved restaurants nearby.
+                    {t("home.nearbySubtitle")}
                   </p>
                   <div className="mt-3">
-                    <StatsRow counts={counts} />
+                    <StatsRow counts={counts} activeStatus={activeStatus} onSelectStatus={setActiveStatus} />
                   </div>
                 </div>
               </div>
 
               {/* Nearby Restaurants */}
               <div className="px-4 flex items-center justify-between mb-2">
-                <h2 className="text-sm font-extrabold text-ink-900">Nearby Restaurants</h2>
+                <h2 className="text-sm font-extrabold text-ink-900">{t("home.nearbyTitle")}</h2>
                 <Link
                   href="/list/"
                   className="text-[11px] font-bold text-primary-700 hover:underline flex items-center gap-0.5"
                 >
-                  View all <ChevronRight className="size-3" />
+                  {t("home.viewAll")} <ChevronRight className="size-3" />
                 </Link>
               </div>
 
@@ -674,7 +659,7 @@ function MobileBottomSheet({ places, selected, counts, status, onSelect, onClose
             className="btn btn-sm btn-primary"
           >
             <Plus className="size-3.5" />
-            Add
+            {t("nav.add")}
           </button>
           <Link href="/list/" className="btn btn-sm btn-outline">
             {t("nav.list")}

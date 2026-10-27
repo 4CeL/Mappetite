@@ -3,6 +3,8 @@
 import { useState, useMemo } from "react";
 import { Search, ChevronDown, ChevronUp, Check } from "lucide-react";
 
+import { useI18n } from "@/lib/i18n";
+
 export default function RestaurantFiltersSidebar({
   tags = [],
   selectedTagIds = [],
@@ -13,6 +15,7 @@ export default function RestaurantFiltersSidebar({
   onClearAll,
   className = "",
 }) {
+  const { t } = useI18n();
   const [tagSearch, setTagSearch] = useState("");
   const [showAllTags, setShowAllTags] = useState(false);
   const [locationSearch, setLocationSearch] = useState("");
@@ -39,19 +42,19 @@ export default function RestaurantFiltersSidebar({
     >
       {/* Card Header: Filters & Clear all */}
       <div className="flex items-center justify-between pb-1">
-        <h2 className="text-sm font-bold text-ink-900 tracking-tight">Filters</h2>
+        <h2 className="text-sm font-bold text-ink-900 tracking-tight">{t("filters.sidebarTitle")}</h2>
         <button
           type="button"
           onClick={onClearAll}
           className="text-xs font-semibold text-[#5B6D43] hover:text-[#3C4A2A] transition-colors"
         >
-          Clear all
+          {t("filters.reset")}
         </button>
       </div>
 
       {/* 1. Tags Section */}
       <div className="flex flex-col gap-2.5">
-        <h3 className="text-xs font-bold text-ink-900">Tags</h3>
+        <h3 className="text-xs font-bold text-ink-900">{t("filters.tags")}</h3>
 
         {/* Small Tag Search */}
         <div className="relative">
@@ -60,7 +63,7 @@ export default function RestaurantFiltersSidebar({
             type="text"
             value={tagSearch}
             onChange={(e) => setTagSearch(e.target.value)}
-            placeholder="Search tags..."
+            placeholder={t("filters.searchTags")}
             className="w-full rounded-xl border border-[#E7E2D5] bg-white pl-8 pr-3 py-1.5 text-xs text-ink-800 placeholder:text-ink-400 focus:border-primary-700 focus:outline-none"
           />
         </div>
@@ -68,7 +71,7 @@ export default function RestaurantFiltersSidebar({
         {/* Tag Checkbox List */}
         <div className="flex flex-col gap-2 text-xs max-h-48 overflow-y-auto pr-1">
           {visibleTags.length === 0 ? (
-            <p className="text-[11px] text-ink-400 py-1">Tidak ada tag yang cocok</p>
+            <p className="text-[11px] text-ink-400 py-1">{t("filters.noMatchingTags")}</p>
           ) : (
             visibleTags.map((tag) => {
               const checked = selectedTagIds.includes(tag.id);
@@ -109,11 +112,11 @@ export default function RestaurantFiltersSidebar({
           >
             {showAllTags ? (
               <>
-                Show less <ChevronUp className="size-3.5" />
+                {t("filters.showLess")} <ChevronUp className="size-3.5" />
               </>
             ) : (
               <>
-                Show more <ChevronDown className="size-3.5" />
+                {t("filters.showMore")} <ChevronDown className="size-3.5" />
               </>
             )}
           </button>
@@ -125,7 +128,7 @@ export default function RestaurantFiltersSidebar({
 
       {/* 2. Location Section */}
       <div className="flex flex-col gap-2.5">
-        <h3 className="text-xs font-bold text-ink-900">Location</h3>
+        <h3 className="text-xs font-bold text-ink-900">{t("filters.location")}</h3>
 
         {/* Small Location Search */}
         <div className="relative">
@@ -134,7 +137,7 @@ export default function RestaurantFiltersSidebar({
             type="text"
             value={locationSearch}
             onChange={(e) => setLocationSearch(e.target.value)}
-            placeholder="Search location..."
+            placeholder={t("filters.searchLocation")}
             className="w-full rounded-xl border border-[#E7E2D5] bg-white pl-8 pr-3 py-1.5 text-xs text-ink-800 placeholder:text-ink-400 focus:border-primary-700 focus:outline-none"
           />
         </div>
@@ -142,7 +145,7 @@ export default function RestaurantFiltersSidebar({
         {/* Location Checkbox List */}
         <div className="flex flex-col gap-2 text-xs max-h-40 overflow-y-auto pr-1">
           {filteredLocations.length === 0 ? (
-            <p className="text-[11px] text-ink-400 py-1">Belum ada data lokasi</p>
+            <p className="text-[11px] text-ink-400 py-1">{t("filters.noLocations")}</p>
           ) : (
             filteredLocations.map((loc) => {
               const checked = selectedLocations.includes(loc.name);

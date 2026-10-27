@@ -6,11 +6,11 @@ import {
   Map as MapIcon,
   UtensilsCrossed,
   Bookmark,
-  Check,
 } from "lucide-react";
 
 import Logo from "@/components/Logo";
 import LeftSidebarIllustration from "./LeftSidebarIllustration";
+import { useI18n } from "@/lib/i18n";
 
 export default function AppSidebar({
   counts = {},
@@ -19,11 +19,12 @@ export default function AppSidebar({
   className = "",
 }) {
   const pathname = usePathname();
+  const { t } = useI18n();
 
   const navLinks = [
-    { href: "/", label: "Map", icon: MapIcon, active: pathname === "/" || pathname === "" },
-    { href: "/list/", label: "Restaurants", icon: UtensilsCrossed, active: pathname?.startsWith("/list") },
-    { href: "/list/", label: "Collection", icon: Bookmark, active: false },
+    { href: "/", label: t("nav.map"), icon: MapIcon, active: pathname === "/" || pathname === "" },
+    { href: "/list/", label: t("nav.restaurants"), icon: UtensilsCrossed, active: pathname?.startsWith("/list") },
+    { href: "/list/", label: t("nav.collection"), icon: Bookmark, active: false },
   ];
 
   return (
@@ -56,50 +57,6 @@ export default function AppSidebar({
             );
           })}
         </nav>
-
-        {/* My Lists Section */}
-        <div className="flex flex-col gap-2 pt-2 border-t border-[#EAE5D9]">
-          <h2 className="px-4 text-xs font-semibold text-ink-500 tracking-wide">My Lists</h2>
-          <div className="flex flex-col gap-1">
-            {/* Want to Visit */}
-            <button
-              type="button"
-              onClick={() => onSelectStatus?.(activeStatus === "wishlist" ? "all" : "wishlist")}
-              className={`flex items-center justify-between rounded-xl px-4 py-2 text-xs transition-colors ${
-                activeStatus === "wishlist"
-                  ? "bg-[#FDF1EB] font-bold text-[#D96B43]"
-                  : "font-medium text-ink-700 hover:bg-[#F4F0E6]"
-              }`}
-            >
-              <div className="flex items-center gap-2.5">
-                <span className="flex size-5 items-center justify-center rounded-full bg-[#FCE8DE] text-[#D96B43]">
-                  <Bookmark className="size-3 fill-current" />
-                </span>
-                <span>Want to Visit</span>
-              </div>
-              <span className="font-semibold text-ink-400">{counts.wishlist ?? 0}</span>
-            </button>
-
-            {/* Visited */}
-            <button
-              type="button"
-              onClick={() => onSelectStatus?.(activeStatus === "visited" ? "all" : "visited")}
-              className={`flex items-center justify-between rounded-xl px-4 py-2 text-xs transition-colors ${
-                activeStatus === "visited"
-                  ? "bg-[#EDF4EB] font-bold text-[#4E8746]"
-                  : "font-medium text-ink-700 hover:bg-[#F4F0E6]"
-              }`}
-            >
-              <div className="flex items-center gap-2.5">
-                <span className="flex size-5 items-center justify-center rounded-full bg-[#E0EEDD] text-[#4E8746]">
-                  <Check className="size-3 stroke-[2.5]" />
-                </span>
-                <span>Visited</span>
-              </div>
-              <span className="font-semibold text-ink-400">{counts.visited ?? 0}</span>
-            </button>
-          </div>
-        </div>
       </div>
 
       {/* Bottom Illustration */}

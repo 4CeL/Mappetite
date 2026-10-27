@@ -135,6 +135,7 @@ export default function AppShell({ children }) {
   const isCustomLayout =
     path === "/list" ||
     path === "/" ||
+    path === "/settings" ||
     path.startsWith("/places/detail");
 
   if (!hydrated || (!token && !isPublic) || (token && isPublic)) return <Splash />;

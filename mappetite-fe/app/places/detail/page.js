@@ -225,7 +225,7 @@ function PlaceDetail() {
         <TopSearchBar
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
-          className="border-b border-[#EAE5D9]/70 bg-[#FAF8F3]/80 backdrop-blur-sm sticky top-0 z-[1000] shrink-0 [&>div]:justify-start [&>div]:mx-0 [&_input]:mx-0 [&_form]:mx-0 [&_input]:max-w-md [&_form]:max-w-md"
+          className="border-b border-[#EAE5D9]/70 bg-[#FAF8F3]/80 backdrop-blur-sm sticky top-0 z-[1050] shrink-0"
         />
 
         <div className="flex-1 min-h-0 overflow-y-auto">

@@ -216,11 +216,11 @@ export default function MapView({
 
       <div className="absolute bottom-6 left-4 z-[900] hidden items-center gap-4 rounded-full bg-white px-4 py-2 text-xs text-ink-700 shadow-card lg:flex">
         <span className="flex items-center gap-1.5">
-          <span className="size-3 rounded-full border-2 border-white bg-primary-700 ring-1 ring-primary-700" aria-hidden="true" />
+          <span className="size-3 rounded-full border-2 border-white bg-[#D96B43] ring-1 ring-[#D96B43]" aria-hidden="true" />
           {t("map.legendWishlist")}
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="size-3 rounded-full border-2 border-white bg-visited-500 ring-1 ring-visited-500" aria-hidden="true" />
+          <span className="size-3 rounded-full border-2 border-white bg-[#4E8746] ring-1 ring-[#4E8746]" aria-hidden="true" />
           {t("map.legendVisited")}
         </span>
       </div>

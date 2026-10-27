@@ -1,6 +1,6 @@
 import L from "@/lib/leaflet";
 
-const COLORS = { wishlist: "#5D6C4B", visited: "#D97745" };
+const COLORS = { wishlist: "#D96B43", visited: "#4E8746" };
 const PIN_PATH = "M0 0C-4-10-16-18-16-28A16 16 0 1 1 16-28C16-18 4-10 0 0Z";
 
 function escapeHtml(value) {

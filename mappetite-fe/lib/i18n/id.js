@@ -161,20 +161,27 @@ const id = {
   "map.myLocation": "Lokasi saya",
   "map.cluster": "{count} restoran",
 
-  "settings.title": "Profil",
+  "settings.title": "Pengaturan",
+  "settings.pageTitle": "Pengaturan Akun",
+  "settings.pageSubtitle": "Kelola profil, preferensi bahasa, dan tag kamu.",
   "settings.account": "Akun",
   "settings.saveProfile": "Simpan",
   "settings.profileSaved": "Profil diperbarui.",
   "settings.signedInWith": "Masuk dengan {provider}",
   "settings.providerLocal": "email & password",
   "settings.providerGoogle": "Google",
-  "settings.tags": "Kelola tag",
+  "settings.tags": "Kelola Tag",
   "settings.tagsHint": "Ganti nama atau hapus tag. Menghapus tag tidak menghapus restorannya.",
   "settings.tagUsage": "{count} restoran",
   "settings.rename": "Ganti nama",
   "settings.deleteTagConfirm": "Hapus tag \"{name}\"?",
-  "settings.noTags": "Belum ada tag.",
-  "settings.language": "Bahasa tampilan",
+  "settings.noTags": "Belum ada tag",
+  "settings.noTagsHint": "Tag akan muncul di sini setelah kamu menambahkannya ke restoran.",
+  "settings.language": "Bahasa Tampilan",
+  "settings.languageHint": "Pilih bahasa tampilan yang kamu inginkan.",
+  "settings.selectLanguage": "Pilih bahasa",
+  "settings.dangerZone": "Keluar",
+  "settings.dangerHint": "Keluar dari akun kamu di perangkat ini.",
 
   "common.retry": "Coba lagi",
   "common.save": "Simpan",
@@ -225,6 +232,54 @@ const id = {
   "errors.tags.exists": "Tag dengan nama ini sudah ada.",
   "errors.tags.not_found": "Tag tidak ditemukan.",
   "errors.unknown": "Terjadi kesalahan. Coba lagi.",
+
+  // Navigation & Layout
+  "nav.restaurants": "Restoran",
+  "nav.collection": "Koleksi",
+  "nav.myLists": "Daftar Saya",
+
+  // Top Search Bar
+  "topbar.searchPlaceholder": "Cari restoran, tag, atau lokasi...",
+  "topbar.profileSettings": "Pengaturan Profil",
+  "topbar.language": "Bahasa",
+  "topbar.switchTo": "Ganti ke {lang}",
+  "topbar.notifications": "Notifikasi",
+
+  // Map & Home Page
+  "home.goodMorning": "Selamat pagi",
+  "home.goodAfternoon": "Selamat siang",
+  "home.goodEvening": "Selamat sore",
+  "home.goodNight": "Selamat malam",
+  "home.nearbySubtitle": "Berikut beberapa restoran tersimpan di sekitarmu.",
+  "home.nearbyTitle": "Restoran Terdekat",
+  "home.viewAll": "Lihat semua",
+  "home.showPanel": "Tampilkan Panel",
+  "home.hidePanel": "Sembunyikan Panel",
+  "home.bottomCtaTitle": "Nemuin tempat makan enak?",
+  "home.bottomCtaSubtitle": "Paste link Google Maps untuk langsung simpan.",
+  "home.bottomCtaButton": "+ Tambah Restoran",
+
+  // Detail Panel
+  "detail.title": "Detail Restoran",
+  "detail.visitStatus": "Status Kunjungan",
+  "detail.moreDetails": "Detail Lainnya",
+  "detail.deleteConfirm": "Hapus \"{name}\" dari daftar?",
+  "detail.deleteFailed": "Gagal menghapus restoran. Coba lagi.",
+
+  // List Page
+  "list.title": "Restoran Saya",
+  "list.subtitle": "Koleksi tempat makan favoritmu.",
+  "list.totalCount": "Total {count} restoran.",
+
+  // Filters Sidebar
+  "filters.sidebarTitle": "Filter",
+  "filters.searchTags": "Cari tag…",
+  "filters.noMatchingTags": "Tidak ada tag yang cocok",
+  "filters.showMore": "Tampilkan lebih banyak",
+  "filters.showLess": "Tampilkan lebih sedikit",
+  "filters.location": "Lokasi",
+  "filters.searchLocation": "Cari lokasi…",
+  "filters.noLocations": "Belum ada data lokasi",
 };
 
 export default id;
