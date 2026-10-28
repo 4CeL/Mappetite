@@ -1,12 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import {
   ArrowRight,
   Bookmark,
   Check,
   ChevronRight,
+  Compass,
   Edit2,
   ExternalLink,
   MapPin,
@@ -47,7 +48,7 @@ function getGreeting(t) {
   return t("home.goodNight");
 }
 
-/* ── Stats Row (compact, interactive filter) ─────────────────────── */
+/* ── Stats Row ───────────────────────────────────────────────────── */
 function StatsRow({ counts, activeStatus = "all", onSelectStatus }) {
   const { t } = useI18n();
   const items = [
@@ -128,7 +129,6 @@ function NearbyCard({ place, selected, onSelect }) {
         selected ? "bg-[#E5EBDD] ring-1 ring-[#C5D4B8]" : ""
       }`}
     >
-      {/* Thumbnail */}
       <div className="relative size-16 shrink-0 overflow-hidden rounded-xl bg-stone-100">
         {!imgError ? (
           <img
@@ -143,7 +143,6 @@ function NearbyCard({ place, selected, onSelect }) {
         )}
       </div>
 
-      {/* Info */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 justify-between">
           <span className="text-sm font-bold text-ink-900 truncate">{place.name}</span>
@@ -170,11 +169,10 @@ function NearbyCard({ place, selected, onSelect }) {
   );
 }
 
-/* ── Right Detail Panel ──────────────────────────────────────────── */
+/* ── Right Detail Panel (Desktop) ────────────────────────────────── */
 function DetailPanel({ place, onClose, onDelete }) {
   const { lang, t, formatDistance } = useI18n();
   const [imgError, setImgError] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
   const photoUrl = getFoodPhoto(place);
   const firstTag = place.tags?.[0]?.name;
   const distance = formatDistance(place.distanceKm);
@@ -186,23 +184,18 @@ function DetailPanel({ place, onClose, onDelete }) {
       url: openInMapsUrl(place),
     };
 
-    // Coba pakai Web Share API (native)
     if (navigator.share) {
       try {
         await navigator.share(shareData);
         return;
       } catch (err) {
-        // user cancel atau error, fallback ke clipboard
         if (err.name === "AbortError") return;
       }
     }
 
-    // Fallback: copy ke clipboard
     try {
       await navigator.clipboard.writeText(shareData.url);
-      // opsional: tampilkan toast "Link copied!"
     } catch {
-      // fallback terakhir: prompt manual
       window.prompt("Copy link ini:", shareData.url);
     }
   };
@@ -215,7 +208,6 @@ function DetailPanel({ place, onClose, onDelete }) {
 
   return (
     <aside className="flex flex-col w-full h-full bg-white/95 backdrop-blur-md rounded-2xl shadow-xl border border-[#EAE5D9] overflow-hidden">
-      {/* ── Photo Header ── */}
       <div className="relative h-40 shrink-0 overflow-hidden bg-stone-100">
         {!imgError ? (
           <img
@@ -227,27 +219,20 @@ function DetailPanel({ place, onClose, onDelete }) {
         ) : (
           <PlaceThumb place={place} className="h-full w-full rounded-none" iconClassName="size-10" />
         )}
-
-        {/* Gradient overlay biar tombol kebaca */}
         <div className="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-black/40 to-transparent pointer-events-none" />
-
-        {/* Top controls — overlay di atas gambar */}
         <div className="absolute inset-x-0 top-0 flex items-center justify-end p-3">
           <button
             type="button"
             onClick={onClose}
             className="flex size-9 items-center justify-center rounded-full bg-white/90 backdrop-blur-sm text-ink-700 hover:bg-white shadow-sm transition-colors"
-            aria-label={t("common.close")}
           >
             <X className="size-4" />
           </button>
         </div>
       </div>
 
-      {/* ── Content (scrollable) ── */}
       <div className="flex-1 min-h-0 overflow-y-auto">
         <div className="flex flex-col gap-4 px-5 pt-4 pb-5">
-          {/* Name + Status */}
           <div>
             <div className="flex items-start justify-between gap-2">
               <h2 className="text-xl font-extrabold text-ink-900 leading-tight">{place.name}</h2>
@@ -267,7 +252,6 @@ function DetailPanel({ place, onClose, onDelete }) {
             )}
           </div>
 
-          {/* Action Buttons Row */}
           <div className="flex items-center justify-between gap-2">
             {actionButtons.map((btn) => {
               const Comp = btn.href ? "a" : "button";
@@ -287,10 +271,8 @@ function DetailPanel({ place, onClose, onDelete }) {
             })}
           </div>
 
-          {/* Divider */}
           <div className="border-t border-[#EAE5D9]" />
 
-          {/* Address */}
           {place.address && (
             <div className="flex items-start gap-2.5">
               <MapPin className="size-4 text-[#D96B43] shrink-0 mt-0.5" />
@@ -298,7 +280,6 @@ function DetailPanel({ place, onClose, onDelete }) {
             </div>
           )}
 
-          {/* Status Dropdown */}
           <div>
             <h3 className="text-xs font-bold text-ink-800 mb-2">{t("detail.visitStatus")}</h3>
             <div className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-semibold border ${
@@ -315,7 +296,6 @@ function DetailPanel({ place, onClose, onDelete }) {
             </div>
           </div>
 
-          {/* Tags */}
           {place.tags?.length > 0 && (
             <div>
               <h3 className="text-xs font-bold text-ink-800 mb-2">{t("filters.tags")}</h3>
@@ -332,7 +312,6 @@ function DetailPanel({ place, onClose, onDelete }) {
             </div>
           )}
 
-          {/* Notes Section — tanpa tombol Edit */}
           {place.notes && (
             <div>
               <h3 className="text-xs font-bold text-ink-800 mb-2 flex items-center gap-1.5">
@@ -344,7 +323,6 @@ function DetailPanel({ place, onClose, onDelete }) {
             </div>
           )}
 
-          {/* Bottom Actions */}
           <div className="flex items-center gap-2 pt-2">
             <Link
               href={`/places/detail/?id=${encodeURIComponent(place.id)}`}
@@ -357,7 +335,6 @@ function DetailPanel({ place, onClose, onDelete }) {
                 type="button"
                 onClick={() => onDelete(place)}
                 className="flex size-11 items-center justify-center rounded-xl border border-danger-200 bg-danger-50 text-danger-600 hover:bg-danger-100 transition-colors"
-                aria-label={t("common.delete")}
               >
                 <Trash2 className="size-4" />
               </button>
@@ -369,7 +346,7 @@ function DetailPanel({ place, onClose, onDelete }) {
   );
 }
 
-/* ── Bottom CTA Banner (compact bar) ─────────────────────────────── */
+/* ── Bottom CTA Banner (Desktop Panel) ───────────────────────────── */
 function BottomCTA({ onAdd }) {
   const { t } = useI18n();
   return (
@@ -410,16 +387,14 @@ export default function HomePage() {
 
   const [searchQuery, setSearchQuery] = useState("");
   const [activeStatus, setActiveStatus] = useState("all");
-  const [panelOpen, setPanelOpen] = useState(true); // toggle untuk panel kiri
+  const [panelOpen, setPanelOpen] = useState(true);
 
-  // Counts
   const counts = useMemo(() => {
     const wishlist = places.filter((p) => p.status === "wishlist").length;
     const visited = places.filter((p) => p.status === "visited").length;
     return { all: places.length, wishlist, visited, priority: 0 };
   }, [places]);
 
-  // Filtered + sorted places
   const visiblePlaces = useMemo(() => {
     let result = [...places];
 
@@ -446,12 +421,8 @@ export default function HomePage() {
     : null;
 
   const onSelect = useCallback((id) => setSelectedId(id), [setSelectedId]);
-  const renderPopup = useCallback(
-    (place) => null, // We don't use map popups anymore, using the right panel instead
-    [],
-  );
+  const renderPopup = useCallback((place) => null, []);
 
-  // Scroll the list card into view when a marker is clicked
   useEffect(() => {
     if (!selectedId) return;
     document.getElementById(`nearby-card-${selectedId}`)?.scrollIntoView({
@@ -474,28 +445,30 @@ export default function HomePage() {
   const displayName = user?.username || "Stefanus";
 
   return (
-    <div className="min-h-screen bg-[#FAF8F3] text-ink-900 flex flex-col lg:flex-row">
-      {/* 1. Left Sidebar (matches list page) */}
+    <div className="fixed inset-0 w-full h-[100dvh] bg-[#FAF8F3] text-ink-900 flex flex-col lg:flex-row overflow-hidden">
+      
+      {/* 1. Left Sidebar (Desktop) */}
       <AppSidebar
         counts={counts}
         activeStatus={activeStatus}
         onSelectStatus={setActiveStatus}
-        className="hidden lg:flex h-screen sticky top-0"
+        className="hidden lg:flex h-full sticky top-0 shrink-0 z-20"
       />
 
       {/* 2. Main Area */}
-      <div className="flex-1 min-w-0 flex flex-col h-screen">
-        {/* Top Navbar (same as list page) — search bar nempel ke kiri */}
+      <div className="flex-1 min-w-0 flex flex-col h-full relative overflow-hidden">
+        {/* Top Navbar — Disembunyikan di mobile agar full map */}
         <TopSearchBar
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
-          className="border-b border-[#EAE5D9]/70 bg-[#FAF8F3]/80 backdrop-blur-sm sticky top-0 z-[1050] shrink-0"
+          className="hidden lg:flex border-b border-[#EAE5D9]/70 bg-[#FAF8F3]/80 backdrop-blur-sm sticky top-0 z-[1050] shrink-0"
         />
 
         {/* Content: Map as background + floating panels */}
-        <div className="flex-1 min-h-0 relative overflow-hidden">
+        <div className="flex-1 min-h-0 relative overflow-hidden bg-stone-200">
+          
           {/* Map — full area background */}
-          <div className="absolute inset-0">
+          <div className="absolute inset-0 z-0">
             <MapView
               places={visiblePlaces}
               selectedId={selectedPlace?.id ?? null}
@@ -503,32 +476,25 @@ export default function HomePage() {
               geo={geo}
               onLocate={locate}
               renderPopup={renderPopup}
-              controlsClassName={`bottom-6 right-6 w-fit ${
+              controlsClassName={`bottom-32 right-4 w-fit lg:bottom-6 lg:right-6 ${
                 selectedPlace ? "xl:right-[22rem]" : ""
               }`}
               attributionOffset="0px"
             />
           </div>
 
-          {/* Toggle Button — floating di KIRI ATAS map */}
+          {/* === DESKTOP UI === */}
           <button
             type="button"
             onClick={() => setPanelOpen((v) => !v)}
             className="hidden lg:flex absolute top-4 left-4 z-[950] items-center gap-2 rounded-xl bg-white/95 backdrop-blur-md border border-[#EAE5D9] shadow-lg px-3 py-2 text-xs font-bold text-ink-800 hover:bg-white transition-colors"
-            aria-label={panelOpen ? t("home.hidePanel") : t("home.showPanel")}
           >
-            {panelOpen ? (
-              <PanelLeftClose className="size-4" />
-            ) : (
-              <PanelLeftOpen className="size-4" />
-            )}
+            {panelOpen ? <PanelLeftClose className="size-4" /> : <PanelLeftOpen className="size-4" />}
             <span>{panelOpen ? t("home.hidePanel") : t("home.showPanel")}</span>
           </button>
 
-          {/* Left Floating Panel (Desktop) */}
           {panelOpen && (
             <div className="hidden lg:flex flex-col absolute top-16 left-4 bottom-4 w-[22rem] z-[900] bg-white/95 backdrop-blur-md rounded-2xl shadow-xl border border-[#EAE5D9] overflow-hidden">
-              {/* Greeting Card (compact) */}
               <div className="px-4 pt-4 pb-3">
                 <div className="rounded-xl border border-[#ECE7DD] bg-white px-3 py-3 shadow-sm">
                   <p className="text-[13px] text-ink-700 leading-tight">
@@ -545,18 +511,13 @@ export default function HomePage() {
                 </div>
               </div>
 
-              {/* Nearby Restaurants */}
               <div className="px-4 flex items-center justify-between mb-2">
                 <h2 className="text-sm font-extrabold text-ink-900">{t("home.nearbyTitle")}</h2>
-                <Link
-                  href="/list/"
-                  className="text-[11px] font-bold text-primary-700 hover:underline flex items-center gap-0.5"
-                >
+                <Link href="/list/" className="text-[11px] font-bold text-primary-700 hover:underline flex items-center gap-0.5">
                   {t("home.viewAll")} <ChevronRight className="size-3" />
                 </Link>
               </div>
 
-              {/* Scrollable List */}
               <div className="flex-1 min-h-0 overflow-y-auto px-2 pb-2">
                 {status === "loading" ? (
                   <div className="flex flex-col gap-2 px-2">
@@ -587,14 +548,12 @@ export default function HomePage() {
                 )}
               </div>
 
-              {/* Bottom CTA (compact) */}
               <div className="px-3 pb-3 pt-1 shrink-0">
                 <BottomCTA onAdd={openAdd} />
               </div>
             </div>
           )}
 
-          {/* Right Floating Detail Panel (Desktop, shown when a place is selected) */}
           {selectedPlace && (
             <div className="hidden xl:block absolute top-4 right-4 bottom-4 w-80 z-[900]">
               <DetailPanel
@@ -605,8 +564,20 @@ export default function HomePage() {
             </div>
           )}
 
-          {/* Mobile Bottom Sheet */}
-          <div className="lg:hidden absolute inset-x-0 bottom-0 z-[950]">
+          {/* === MOBILE UI (Google Maps Style) === */}
+          {/* Pembungkus utama mobile UI ini dibuat absolute di bawah (pointer-events-none) agar map tetap bisa di-klik */}
+          <div className="lg:hidden absolute inset-0 pointer-events-none flex flex-col justify-end z-10">
+            
+            {/* Top Search Bar for Mobile (Floating) */}
+            <div className="absolute top-4 inset-x-4 pointer-events-auto z-10">
+              <TopSearchBar
+                searchQuery={searchQuery}
+                onSearchChange={setSearchQuery}
+                className="rounded-full shadow-lg border-0 bg-white"
+              />
+            </div>
+
+            {/* Bottom Sheet — Hanya area panel ini yang pointer-events-auto */}
             <MobileBottomSheet
               places={visiblePlaces}
               selected={selectedPlace}
@@ -615,6 +586,7 @@ export default function HomePage() {
               onSelect={onSelect}
               onClose={() => setSelectedId(null)}
               onAdd={openAdd}
+              onReload={reload}
             />
           </div>
         </div>
@@ -623,76 +595,267 @@ export default function HomePage() {
   );
 }
 
-/* ── Mobile Bottom Sheet ─────────────────────────────────────────── */
-function MobileBottomSheet({ places, selected, counts, status, onSelect, onClose, onAdd }) {
+/* ── Mobile Bottom Sheet (Light Theme & Swipeable) ─────────────── */
+function MobileBottomSheet({ places, selected, counts, status, onSelect, onClose, onAdd, onReload }) {
   const { t, formatDistance } = useI18n();
+  const [isExpanded, setIsExpanded] = useState(true);
+  const [showFullList, setShowFullList] = useState(false);
+  
+  // State untuk drag
+  const sheetRef = useRef(null);
+  const [startY, setStartY] = useState(0);
+  const [currentY, setCurrentY] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
 
-  if (selected) {
-    return (
-      <div className="rounded-t-3xl bg-white px-5 pb-5 pt-3 shadow-sheet">
-        <span className="mx-auto mb-3 block h-1 w-10 rounded-full bg-line-strong" aria-hidden="true" />
-        <div className="flex items-center gap-4" aria-live="polite">
-          <PlaceThumb place={selected} className="size-[4.5rem]" iconClassName="size-8" />
-          <div className="min-w-0 flex-1">
-            <h2 className="truncate text-base font-bold text-ink-900">{selected.name}</h2>
-            <p className="truncate text-xs text-ink-500">
-              {[shortArea(selected.address), formatDistance(selected.distanceKm)].filter(Boolean).join(" · ")}
-            </p>
-            <div className="mt-2 flex items-center gap-2">
-              <StatusBadge status={selected.status} />
-              <RatingPill value={selected.rating} />
-            </div>
-          </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="shrink-0 size-8 rounded-full flex items-center justify-center text-ink-500 hover:bg-stone-100"
-          >
-            <X className="size-4" />
-          </button>
-        </div>
-        <div className="grid grid-cols-2 gap-2 mt-4">
-          <Link
-            href={`/places/detail/?id=${encodeURIComponent(selected.id)}`}
-            className="btn btn-outline btn-sm"
-          >
-            {t("place.detail")}
-          </Link>
-          <a
-            href={directionsUrl(selected)}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn btn-primary btn-sm"
-          >
-            {t("place.directions")}
-            <ExternalLink className="size-3.5" />
-          </a>
-        </div>
-      </div>
-    );
+  // Jika ada tempat yang dipilih (klik marker), otomatis expand
+  useEffect(() => {
+    if (selected) setIsExpanded(true);
+  }, [selected]);
+
+  // Fungsi Drag/Swipe
+  const handleTouchStart = (e) => {
+    setIsDragging(true);
+    setStartY(e.touches[0].clientY);
+    setCurrentY(e.touches[0].clientY);
+  };
+
+  const handleTouchMove = (e) => {
+    if (!isDragging) return;
+    const y = e.touches[0].clientY;
+    setCurrentY(y);
+  };
+
+  const handleTouchEnd = () => {
+    if (!isDragging) return;
+    setIsDragging(false);
+    
+    const deltaY = currentY - startY;
+    
+    if (deltaY < -50) {
+      setIsExpanded(true);
+    } else if (deltaY > 50) {
+      setIsExpanded(false);
+      if (selected) onClose();
+      setShowFullList(false);
+    }
+  };
+
+  let translateStyle = {};
+  if (isDragging) {
+    const deltaY = currentY - startY;
+    translateStyle = {
+      transform: `translateY(calc(${isExpanded ? '0px' : 'calc(100% - 6.5rem)'} + ${deltaY}px))`,
+      transition: 'none'
+    };
   }
 
   return (
-    <div className="rounded-t-3xl bg-white px-5 pb-5 pt-3 shadow-sheet">
-      <span className="mx-auto mb-3 block h-1 w-10 rounded-full bg-line-strong" aria-hidden="true" />
-      <div className="flex items-center justify-between gap-3">
-        <p className="flex items-center gap-2 text-sm font-semibold text-ink-900">
-          <MapPin className="size-4 text-primary-700" aria-hidden="true" />
-          {status === "loading" ? t("app.loading") : t("home.restaurantsShown", { count: places.length })}
-        </p>
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={onAdd}
-            className="btn btn-sm btn-primary"
-          >
-            <Plus className="size-3.5" />
-            {t("nav.add")}
-          </button>
-          <Link href="/list/" className="btn btn-sm btn-outline">
-            {t("nav.list")}
-            <ArrowRight className="size-3.5" />
-          </Link>
+    // Div ini pointer-events-auto dan diposisikan di fixed bottom agar tidak mengganggu peta di atasnya
+    <div className="pointer-events-auto flex flex-col justify-end w-full h-[85dvh] fixed bottom-0 left-0 z-50">
+      <div
+        ref={sheetRef}
+        style={translateStyle}
+        className={`w-full bg-[#FAF8F3] text-ink-900 rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.1)] flex flex-col transition-transform duration-300 ease-out pointer-events-auto border-t border-[#EAE5D9] ${
+          isExpanded ? "translate-y-0 h-full" : "translate-y-[calc(100%-6.5rem)]"
+        }`}
+      >
+        {/* Area Handle (Garis atas) */}
+        <div
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+          onClick={() => setIsExpanded((v) => !v)}
+          className="w-full flex justify-center pt-3 pb-2 cursor-grab active:cursor-grabbing shrink-0"
+        >
+          <span className="h-1.5 w-12 rounded-full bg-stone-300" aria-hidden="true" />
+        </div>
+
+        {/* Header Singkat */}
+        <div 
+          className="px-5 pb-4 flex items-center justify-between shrink-0"
+          onClick={() => setIsExpanded((v) => !v)}
+        >
+          <p className="flex items-center gap-2 text-base font-bold text-ink-900">
+            <MapPin className="size-5 text-[#485635]" aria-hidden="true" />
+            {status === "loading" ? t("app.loading") : `${places.length} restaurants`}
+          </p>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); onAdd(); }}
+              className="inline-flex items-center gap-1.5 rounded-full bg-[#485635] text-white px-4 py-2 text-xs font-bold shadow-sm transition-colors hover:bg-[#3B472A]"
+            >
+              <Plus className="size-4" />
+              Add
+            </button>
+            <button 
+              onClick={(e) => { 
+                e.stopPropagation(); 
+                setIsExpanded(true); 
+                setShowFullList((v) => !v); 
+                if(selected) onClose(); 
+              }}
+              className="inline-flex items-center gap-1.5 rounded-full border border-[#EAE5D9] bg-white text-ink-800 px-4 py-2 text-xs font-bold shadow-sm"
+            >
+              {showFullList ? "Maps" : "List"}
+            </button>
+          </div>
+        </div>
+
+        {/* Content Area */}
+        <div className="flex-1 overflow-y-auto pb-6 hide-scrollbar">
+           {selected ? (
+              /* ── Tampilan Detail (Jika dipilih) ── */
+              <div className="px-4 py-4">
+                 <div className="flex items-start justify-between gap-4 mb-4">
+                    <div>
+                      <h2 className="text-xl font-bold text-ink-900 leading-tight">{selected.name}</h2>
+                      <p className="text-sm text-ink-500 mt-1">
+                        {selected.rating && (
+                          <span className="inline-flex items-center gap-1 text-ink-700 font-medium mr-2">
+                            {Number(selected.rating).toFixed(1)} <Star className="size-3.5 text-amber-500 fill-current" />
+                          </span>
+                        )}
+                        {selected.tags?.[0]?.name || "Restoran"}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => { onClose(); setIsExpanded(true); }}
+                      className="shrink-0 size-8 flex items-center justify-center rounded-full bg-stone-200 text-ink-600"
+                    >
+                      <X className="size-4" />
+                    </button>
+                  </div>
+                  
+                  <div className="flex items-center gap-3 mb-5">
+                     <a
+                      href={openInMapsUrl(selected)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-1 flex items-center justify-center gap-2 bg-[#485635] text-white py-3 rounded-xl text-sm font-bold shadow-md hover:bg-[#3B472A]"
+                    >
+                      <Navigation className="size-4" /> Rute
+                    </a>
+                    <a
+                      href={`/places/detail/?id=${encodeURIComponent(selected.id)}`}
+                      className="flex-1 flex items-center justify-center gap-2 bg-white border border-[#EAE5D9] text-ink-900 py-3 rounded-xl text-sm font-bold hover:bg-stone-50"
+                    >
+                      <Edit2 className="size-4" /> Detail
+                    </a>
+                  </div>
+
+                  {selected.address && (
+                    <div className="flex items-start gap-2.5 text-sm text-ink-600 bg-white border border-[#EAE5D9] p-3 rounded-xl">
+                       <MapPin className="size-4 shrink-0 mt-0.5 text-[#D96B43]" />
+                       <p>{selected.address}</p>
+                    </div>
+                  )}
+              </div>
+           ) : showFullList ? (
+              /* ── Tampilan List Vertikal (Lihat Semua) ── */
+              <div className="flex flex-col gap-2 pt-2 px-3">
+                 {places.map((place) => (
+                    <button
+                      key={place.id}
+                      onClick={() => onSelect(place.id)}
+                      className="flex items-center gap-3 w-full p-2 rounded-2xl bg-white border border-[#EAE5D9] hover:bg-[#F2EFE8] text-left transition-colors shadow-sm"
+                    >
+                      <img src={getFoodPhoto(place)} className="size-16 rounded-xl object-cover" />
+                      <div className="flex-1 min-w-0">
+                        <h4 className="text-sm font-bold text-ink-900 truncate">{place.name}</h4>
+                        <p className="text-[11px] text-ink-500 truncate">{shortArea(place.address)}</p>
+                        <div className="flex items-center gap-1 mt-1 text-[11px] text-ink-700">
+                           <Star className="size-3 text-amber-500 fill-current" />
+                           {Number(place.rating || 4.5).toFixed(1)} • {place.distanceKm ? `${place.distanceKm.toFixed(1)} km` : "Dekat"}
+                        </div>
+                      </div>
+                    </button>
+                 ))}
+              </div>
+           ) : (
+             /* ── Tampilan Horizontal Card (Light Theme) ── */
+             <div className="pt-1">
+                <div className="flex overflow-x-auto snap-x snap-mandatory gap-3 px-4 pb-4 hide-scrollbar">
+                  {status === "loading" ? (
+                    <div className="w-[300px] h-[350px] bg-stone-200 rounded-3xl animate-pulse shrink-0 snap-center"></div>
+                  ) : status === "error" ? (
+                    <div className="w-full"><EmptyState kind="error" onRetry={onReload} /></div>
+                  ) : places.length === 0 ? (
+                    <div className="w-full"><EmptyState kind="empty" /></div>
+                  ) : (
+                    places.map((place) => (
+                      <div
+                        key={place.id}
+                        onClick={() => onSelect(place.id)}
+                        className="w-[300px] shrink-0 snap-center bg-white border border-[#EAE5D9] rounded-3xl overflow-hidden shadow-sm flex flex-col text-left transition-transform active:scale-[0.98] cursor-pointer"
+                      >
+                        {/* Image Section with Overlay */}
+                        <div className="relative h-48 w-full bg-stone-100">
+                           <img
+                              src={getFoodPhoto(place)}
+                              alt={place.name}
+                              className="w-full h-full object-cover"
+                           />
+                           
+                           {/* Overlay Gradient di bawah gambar */}
+                           <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
+
+                           {/* Trending Badge (Atas) */}
+                           <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-md text-ink-900 text-[11px] font-semibold px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-sm">
+                              📍 {place.distanceKm ? `${place.distanceKm.toFixed(1)} km` : "Dekat"}
+                           </div>
+
+                           {/* Floating Quote/Note (Persis gambar) */}
+                           <div className="absolute bottom-3 left-3 right-3 bg-[#FAF8F3]/95 backdrop-blur-md rounded-2xl p-3 border border-[#EAE5D9] shadow-sm">
+                              <p className="text-xs text-ink-700 line-clamp-2 italic font-serif leading-relaxed">
+                                 “ {place.notes || "Tempat yang sangat direkomendasikan untuk dikunjungi bersama teman atau keluarga."} ”
+                              </p>
+                           </div>
+                        </div>
+
+                        {/* Info Section (Bawah) */}
+                        <div className="p-4 flex-1 flex flex-col bg-white">
+                          <div className="flex items-center justify-between mb-1">
+                             <h3 className="text-lg font-extrabold text-ink-900 truncate leading-tight">{place.name}</h3>
+                          </div>
+                          
+                          <p className="text-[13px] text-ink-600 flex items-center gap-1.5">
+                             <span className="font-bold text-ink-900">{Number(place.rating || 4.5).toFixed(1)}</span>
+                             <Star className="size-3.5 text-[#F59E0B] fill-current" />
+                             <span className="text-ink-400">({place.google_maps_rating_count || "54"})</span>
+                             · {place.tags?.[0]?.name || "Restoran"}
+                          </p>
+
+                          <p className="text-[13px] mt-1 flex items-center gap-1.5">
+                             <span className="text-[#4E8746] font-semibold">Open</span>
+                             <span className="text-ink-300">·</span>
+                             <span className="text-ink-500">Closes 11.00 pm</span>
+                             <span className="text-ink-300">·</span>
+                             <span className="text-ink-500">{place.distanceKm ? `${place.distanceKm.toFixed(1)} km` : ""}</span>
+                          </p>
+
+                          <p className="text-[12px] text-ink-400 mt-1.5 truncate">
+                             {shortArea(place.address) || "Area"} : Trending
+                          </p>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+                
+                {/* Tombol See All Trending (Seperti di gambar) */}
+                {!status && places.length > 0 && (
+                  <div className="px-4 mt-1 mb-4">
+                    <button 
+                      onClick={() => setShowFullList(true)}
+                      className="w-full py-3.5 bg-white border border-[#EAE5D9] rounded-full text-[13px] font-bold text-ink-800 hover:bg-stone-50 transition-colors flex items-center justify-center gap-1 shadow-sm"
+                    >
+                      See all Trending <ChevronRight className="size-4" />
+                    </button>
+                  </div>
+                )}
+             </div>
+           )}
         </div>
       </div>
     </div>
