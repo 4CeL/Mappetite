@@ -283,3 +283,8 @@ Saran Next
 - Tombol edit yang di notes ntuk edit noted, tanggal visited dan tags
 - Buat modal aja jangan form 
 - Tambah filter di list untuk restorant yang masih buka sekarang, ambil api jam sekarang lalu cari restorant yang masih buka di jam sekarang
+
+
+- Untuk tampilan mobile, buat list nya di bawah, jadi bisa ditarik ke atas untuk tampilin list, lalu saat di klik salaha satu restaurant, langsung masuk ke detailnya aja, miripin kaya google map di hp
+
+- Buat sidebarnya bisa di tutup, lalu kalo mode mobile buat burger

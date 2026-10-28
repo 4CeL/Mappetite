@@ -179,10 +179,38 @@ function DetailPanel({ place, onClose, onDelete }) {
   const firstTag = place.tags?.[0]?.name;
   const distance = formatDistance(place.distanceKm);
 
+  const handleShare = async () => {
+    const shareData = {
+      title: place.name ?? "Restaurant",
+      text: `Cek tempat ini: ${place.name ?? ""}`,
+      url: openInMapsUrl(place),
+    };
+
+    // Coba pakai Web Share API (native)
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+        return;
+      } catch (err) {
+        // user cancel atau error, fallback ke clipboard
+        if (err.name === "AbortError") return;
+      }
+    }
+
+    // Fallback: copy ke clipboard
+    try {
+      await navigator.clipboard.writeText(shareData.url);
+      // opsional: tampilkan toast "Link copied!"
+    } catch {
+      // fallback terakhir: prompt manual
+      window.prompt("Copy link ini:", shareData.url);
+    }
+  };
+
   const actionButtons = [
     { icon: Bookmark, label: t("common.save") },
     { icon: Navigation, label: t("place.openInMaps"), href: openInMapsUrl(place) },
-    { icon: Share2, label: t("place.more") },
+    { icon: Share2, label: t("place.more"), onClick: handleShare },
   ];
 
   return (
@@ -245,7 +273,7 @@ function DetailPanel({ place, onClose, onDelete }) {
               const Comp = btn.href ? "a" : "button";
               const extraProps = btn.href
                 ? { href: btn.href, target: "_blank", rel: "noopener noreferrer" }
-                : { type: "button" };
+                : { type: "button", onClick: btn.onClick };
               return (
                 <Comp
                   key={btn.label}
