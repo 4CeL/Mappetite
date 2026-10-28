@@ -288,3 +288,8 @@ Saran Next
 - Untuk tampilan mobile, buat list nya di bawah, jadi bisa ditarik ke atas untuk tampilin list, lalu saat di klik salaha satu restaurant, langsung masuk ke detailnya aja, miripin kaya google map di hp
 
 - Buat sidebarnya bisa di tutup, lalu kalo mode mobile buat burger
+
+- Untuk side detail, buat designnya mirip google maps web aja, jadi di atasnya ada
+rating harga
+teru sibawah alamat dan status buka - jam buka jam tutup
+lalu dibawahnya lagi ada harga per person
