@@ -19,6 +19,8 @@ export function PlacesProvider({ children }) {
   const [selectedId, setSelectedId] = useState(null);
   const [filters, setFilters] = useState(DEFAULT_FILTERS);
   const [addOpen, setAddOpen] = useState(false);
+  // Which restaurant the edit modal is open for: { id, overrides } or null.
+  const [editTarget, setEditTarget] = useState(null);
   const [geo, setGeo] = useState({ status: "idle", coords: null });
 
   useEffect(() => {
@@ -122,10 +124,14 @@ export function PlacesProvider({ children }) {
       addOpen,
       openAdd: () => setAddOpen(true),
       closeAdd: () => setAddOpen(false),
+      editTarget,
+      /** Open the edit modal. `overrides` pre-fills form fields, e.g. { status: "visited" }. */
+      openEdit: (id, overrides = {}) => setEditTarget({ id, overrides }),
+      closeEdit: () => setEditTarget(null),
       geo,
       locate,
     }),
-    [current.status, current.error, places, tags, reload, upsertPlace, removePlace, selectedId, filters, addOpen, geo, locate],
+    [current.status, current.error, places, tags, reload, upsertPlace, removePlace, selectedId, filters, addOpen, editTarget, geo, locate],
   );
 
   return <PlacesContext.Provider value={value}>{children}</PlacesContext.Provider>;

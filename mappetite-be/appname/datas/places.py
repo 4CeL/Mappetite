@@ -29,6 +29,8 @@ SAVED_PLACE_COLUMNS = """
     sp.price_level,
     sp.notes,
     sp.visited_at,
+    to_char(sp.opens_at, 'HH24:MI') AS opens_at,
+    to_char(sp.closes_at, 'HH24:MI') AS closes_at,
     sp.created_at,
     sp.updated_at,
     COALESCE((
@@ -203,8 +205,9 @@ def dataCreateSavedPlace(user_id, place, personal, tag_names):
         place_id = _find_or_create_place(cur, place)
         cur.execute(
             """
-            INSERT INTO saved_places (user_id, place_id, custom_name, status, rating, price_level, notes, visited_at)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+            INSERT INTO saved_places
+                (user_id, place_id, custom_name, status, rating, price_level, notes, visited_at, opens_at, closes_at)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             RETURNING saved_place_id
             """,
             (
@@ -216,6 +219,8 @@ def dataCreateSavedPlace(user_id, place, personal, tag_names):
                 personal.get("price_level"),
                 personal.get("notes"),
                 personal.get("visited_at"),
+                personal.get("opens_at"),
+                personal.get("closes_at"),
             ),
         )
         saved_place_id = cur.fetchone()["saved_place_id"]
@@ -235,7 +240,9 @@ def dataUpdateSavedPlace(user_id, saved_place_id, personal, location, tag_names)
     `tag_names`: list replaces all tags, None leaves tags unchanged.
     Returns the updated row, or None when the saved place does not exist.
     """
-    allowed_personal = {"custom_name", "status", "rating", "price_level", "notes", "visited_at"}
+    allowed_personal = {
+        "custom_name", "status", "rating", "price_level", "notes", "visited_at", "opens_at", "closes_at",
+    }
 
     def operation(cur):
         cur.execute(

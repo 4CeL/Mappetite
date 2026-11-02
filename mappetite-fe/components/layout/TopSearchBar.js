@@ -13,7 +13,7 @@ export default function TopSearchBar({
   align = "left",
   className = "",
 }) {
-  const { user, logout, changeLanguage } = useAuth();
+  const { user, signOut, changeLanguage } = useAuth();
   const { t, lang, setLanguage } = useI18n();
   const [profileOpen, setProfileOpen] = useState(false);
   const searchInputRef = useRef(null);
@@ -137,7 +137,7 @@ export default function TopSearchBar({
                 type="button"
                 onClick={() => {
                   setProfileOpen(false);
-                  logout();
+                  signOut();
                 }}
                 className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-medium text-danger-600 hover:bg-danger-50 transition-colors"
               >

@@ -34,6 +34,17 @@ export function formatDate(value, lang) {
   return new Intl.DateTimeFormat(localeFor(lang), { day: "numeric", month: "long", year: "numeric" }).format(date);
 }
 
+/** "22.00" (id) / "10:00 PM" (en) from an "HH:MM" string. */
+export function formatTimeOfDay(hhmm, lang) {
+  if (!hhmm) return null;
+  const [hours, minutes] = hhmm.split(":").map(Number);
+  // Indonesian uses 24 h with a zero-padded hour ("09.30"); English uses 12 h without padding ("9:30 AM").
+  return new Intl.DateTimeFormat(localeFor(lang), {
+    hour: lang === "en" ? "numeric" : "2-digit",
+    minute: "2-digit",
+  }).format(new Date(2000, 0, 1, hours, minutes));
+}
+
 export function todayISO() {
   const now = new Date();
   const month = String(now.getMonth() + 1).padStart(2, "0");

@@ -7,8 +7,6 @@ import PlaceActions from "./PlaceActions";
 import { RatingPill } from "./Rating";
 import StatusBadge from "./StatusBadge";
 
-const PRICE = ["$", "$$", "$$$", "$$$$"];
-
 /** Desktop popup anchored above the selected marker. */
 export default function PlacePopup({ place, onClose }) {
   const { t } = useI18n();
@@ -29,7 +27,7 @@ export default function PlacePopup({ place, onClose }) {
       <div className="mt-3 flex flex-wrap items-center gap-2">
         <StatusBadge status={place.status} long />
         <RatingPill value={place.rating} />
-        {place.price_level ? <span className="tag">{PRICE[place.price_level - 1]}</span> : null}
+        {place.price_level ? <span className="tag">{t(`price.${place.price_level}`)}</span> : null}
       </div>
       {place.notes ? <p className="mt-3 line-clamp-2 text-xs italic text-ink-600">“{place.notes}”</p> : null}
       <div className="mt-4">

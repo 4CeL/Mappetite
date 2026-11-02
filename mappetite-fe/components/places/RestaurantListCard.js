@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import {
+  ArrowRight,
   ExternalLink,
   MapPin,
   MoreVertical,
@@ -14,6 +15,7 @@ import {
   Navigation,
 } from "lucide-react";
 
+import { usePlaces } from "@/components/providers/PlacesProvider";
 import { useI18n } from "@/lib/i18n";
 import { formatRelativeTime, getFoodPhoto } from "@/lib/food-images";
 import PlaceThumb from "./PlaceThumb";
@@ -24,6 +26,7 @@ export default function RestaurantListCard({
   onDelete,
 }) {
   const { lang, t } = useI18n();
+  const { openEdit } = usePlaces();
   const [imgError, setImgError] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -118,7 +121,7 @@ export default function RestaurantListCard({
             )}
             <span className="text-ink-300">·</span>
             <span className="font-medium text-ink-600">
-              {place.tags?.[0]?.name || (place.price_level ? "$".repeat(place.price_level) : "Restaurant")}
+              {place.tags?.[0]?.name || (place.price_level ? t(`price.${place.price_level}`) : "Restaurant")}
             </span>
           </div>
 
@@ -167,10 +170,20 @@ export default function RestaurantListCard({
                       className="flex items-center gap-2 px-3 py-2 text-xs text-ink-800 hover:bg-stone-50"
                       onClick={() => setMenuOpen(false)}
                     >
-                      <Edit2 className="size-3.5 text-ink-500" />
-                      Detail & Edit
+                      <ArrowRight className="size-3.5 text-ink-500" />
+                      Detail
                     </Link>
-                    {place.google_maps_url && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setMenuOpen(false);
+                        openEdit(place.id);
+                      }}
+                      className="flex w-full items-center gap-2 px-3 py-2 text-left text-xs text-ink-800 hover:bg-stone-50"
+                    >
+                      <Edit2 className="size-3.5 text-ink-500" />
+                      Edit
+                    </button>                    {place.google_maps_url && (
                       <a
                         href={place.google_maps_url}
                         target="_blank"
@@ -265,7 +278,7 @@ export default function RestaurantListCard({
           )}
           <span className="text-ink-300">·</span>
           <span className="font-medium text-ink-600">
-            {place.tags?.[0]?.name || (place.price_level ? "$".repeat(place.price_level) : "Restaurant")}
+            {place.tags?.[0]?.name || (place.price_level ? t(`price.${place.price_level}`) : "Restaurant")}
           </span>
         </div>
 

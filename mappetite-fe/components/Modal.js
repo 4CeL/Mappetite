@@ -17,6 +17,13 @@ export default function Modal({ open, onClose, title, description, children, foo
   const titleId = useId();
   const descriptionId = useId();
 
+  // Keep the latest onClose without making it an effect dependency: parents often pass a new
+  // function on every render, which would re-run the effect and pull focus away while typing.
+  const onCloseRef = useRef(onClose);
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  });
+
   useEffect(() => {
     if (!open) return undefined;
     const previouslyFocused = document.activeElement;
@@ -29,7 +36,7 @@ export default function Modal({ open, onClose, title, description, children, foo
     const onKeyDown = (event) => {
       if (event.key === "Escape") {
         event.stopPropagation();
-        onClose?.();
+        onCloseRef.current?.();
       } else if (event.key === "Tab" && panel) {
         const items = [...panel.querySelectorAll(FOCUSABLE)];
         if (items.length === 0) return;
@@ -50,7 +57,7 @@ export default function Modal({ open, onClose, title, description, children, foo
       document.body.style.overflow = overflow;
       previouslyFocused?.focus?.();
     };
-  }, [open, onClose]);
+  }, [open]);
 
   if (!open) return null;
 

@@ -20,6 +20,7 @@ from appname.helpers.validation import (
     is_uuid,
     parse_coordinates,
     parse_iso_date,
+    parse_opening_hours,
     parse_price_level,
     parse_rating,
     parse_tag_names,
@@ -119,6 +120,11 @@ def _validate_personal(body, *, partial, current_status=None):
         if not valid or (visited_at and visited_at > date.today() + timedelta(days=1)):
             return fail(400, "places.visited_at_invalid", "Visit date is invalid"), None
         changes["visited_at"] = visited_at
+
+    valid, hours = parse_opening_hours(body)
+    if not valid:
+        return fail(400, "places.hours_invalid", "Opening and closing time must both be set as HH:MM, or both empty"), None
+    changes.update(hours)
 
     # Default the visit date to today when a place becomes "visited" without one.
     new_status = changes.get("status", current_status)

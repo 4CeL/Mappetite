@@ -103,6 +103,40 @@ def test_create_place_validates_input(client):
     assert response.get_json()["error"]["key"] == "places.rating_invalid"
 
 
+def test_opening_hours_validation(client):
+    token = generate_token({"user_id": "00000000-0000-0000-0000-000000000001", "email": "a@b.co"})
+    headers = {"Authorization": f"Bearer {token}"}
+    base = {"name": "X", "latitude": 1, "longitude": 2}
+
+    for bad in (
+        {"opens_at": "10:00"},                          # only one of the pair
+        {"closes_at": "22:00"},
+        {"opens_at": "10:00", "closes_at": ""},          # one empty
+        {"opens_at": "25:00", "closes_at": "22:00"},     # not a valid hour
+        {"opens_at": "10:60", "closes_at": "22:00"},     # not a valid minute
+        {"opens_at": "9:00", "closes_at": "22:00"},      # must be zero-padded HH:MM
+        {"opens_at": "10:00:00", "closes_at": "22:00"},  # seconds not accepted
+        {"opens_at": 1000, "closes_at": "22:00"},        # wrong type
+    ):
+        response = client.post("/api/places", json={**base, **bad}, headers=headers)
+        assert response.status_code == 400, bad
+        assert response.get_json()["error"]["key"] == "places.hours_invalid", bad
+
+
+def test_parse_opening_hours_helper():
+    from datetime import time
+
+    from appname.helpers.validation import parse_opening_hours
+
+    assert parse_opening_hours({}) == (True, {})
+    assert parse_opening_hours({"opens_at": "10:00", "closes_at": "22:30"}) == (
+        True, {"opens_at": time(10, 0), "closes_at": time(22, 30)})
+    assert parse_opening_hours({"opens_at": "18:00", "closes_at": "02:00"})[0] is True      # overnight
+    assert parse_opening_hours({"opens_at": "00:00", "closes_at": "00:00"})[0] is True      # 24 hours
+    assert parse_opening_hours({"opens_at": None, "closes_at": None}) == (True, {"opens_at": None, "closes_at": None})
+    assert parse_opening_hours({"opens_at": "", "closes_at": ""}) == (True, {"opens_at": None, "closes_at": None})
+
+
 def test_cors_allows_frontend_origin(client):
     response = client.options(
         "/api/places",

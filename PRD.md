@@ -47,7 +47,8 @@ Prioritas P1 masuk MVP dan sudah disetujui. P2 dan P3 untuk fase berikutnya.
 |---|---|---|
 | P1 | Status "Ingin dikunjungi" / "Sudah dikunjungi" | Marker dan badge beda warna serta ikon per status. |
 | P1 | Rating & catatan pribadi | Rating 1–5 (kelipatan 0,5) dan catatan bebas. |
-| P1 | Tag / kategori & kisaran harga | Tag per user (kopi, ramen, halal, nugas…), harga `$`–`$$$$`. Dipakai untuk filter. |
+| P1 | Tag / kategori & kisaran harga | Tag per user (kopi, ramen, halal, nugas…), harga per orang dalam 4 rentang (Rp 25–50 rb, 50–75 rb, 75–100 rb, 100 rb ke atas). Dipakai untuk filter. |
+| P1 | Jam buka & tutup | Diisi manual saat tambah/edit restoran (opsional; boleh melewati tengah malam; ada opsi "Buka 24 jam"). Detail menampilkan status Buka/Tutup sesuai jam di perangkat. Tidak ada sumber data jam buka yang gratis dan boleh disimpan: Google Places butuh akun penagihan dan melarang penyimpanan permanen, sedangkan OpenStreetMap hanya punya jam buka untuk ±17% restoran di Jakarta. |
 | P1 | Filter & search di peta dan list | Status, tag, harga, rating minimal, kata kunci. |
 | P1 | Jarak & urutkan terdekat | Pakai geolokasi browser (kalau diizinkan), jarak dihitung di frontend. |
 | P1 | Tombol "Rute di Google Maps" | Membuka Google Maps ke lokasi restoran. |
@@ -183,7 +184,9 @@ saved_places                -- restoran yang disimpan user
   saved_place_id (uuid, PK) | user_id (FK) | place_id (FK)
   custom_name (nullable) | status ('wishlist' | 'visited')
   rating (numeric(2,1), 0.5–5.0, kelipatan 0.5, nullable)
-  price_level (1–4, nullable) | notes (maks 500 karakter)
+  price_level (1–4, nullable; 1 = Rp 25–50 rb, 2 = 50–75 rb, 3 = 75–100 rb, 4 = 100 rb ke atas)
+  opens_at, closes_at (time, nullable, keduanya terisi atau keduanya kosong; sama = 24 jam; closes_at < opens_at = lewat tengah malam)
+  notes (maks 500 karakter)
   visited_at (nullable) | created_at | updated_at
   UNIQUE (user_id, place_id)
 

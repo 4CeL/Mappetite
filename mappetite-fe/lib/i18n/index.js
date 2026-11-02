@@ -3,7 +3,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo } from "react";
 
 import { createLocalStore, useHydrated } from "../local-store";
-import { formatDate, formatDistance, formatNumber } from "../format";
+import { formatDate, formatDistance, formatNumber, formatTimeOfDay } from "../format";
 import en from "./en";
 import id from "./id";
 
@@ -64,6 +64,7 @@ export function LanguageProvider({ children }) {
       formatNumber: (value, digits) => formatNumber(value, lang, digits),
       formatDistance: (km) => formatDistance(km, lang),
       formatDate: (value) => formatDate(value, lang),
+      formatTime: (value) => formatTimeOfDay(value, lang),
     }),
     [lang, t],
   );

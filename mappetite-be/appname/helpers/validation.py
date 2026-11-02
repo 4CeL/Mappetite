@@ -2,7 +2,7 @@
 
 import re
 import uuid
-from datetime import date
+from datetime import date, time
 from decimal import Decimal, InvalidOperation
 
 from flask import request
@@ -113,6 +113,37 @@ def parse_price_level(value):
     if isinstance(value, bool) or not isinstance(value, int) or not 1 <= value <= 4:
         return False, None
     return True, value
+
+
+TIME_OF_DAY_RE = re.compile(r"^([01]\d|2[0-3]):([0-5]\d)$")
+
+
+def parse_time_of_day(value):
+    """Return (ok, datetime.time|None). Accepts "HH:MM" (24 h); empty/None means "not set"."""
+    if value is None or value == "":
+        return True, None
+    if not isinstance(value, str):
+        return False, None
+    match = TIME_OF_DAY_RE.match(value.strip())
+    if not match:
+        return False, None
+    return True, time(int(match.group(1)), int(match.group(2)))
+
+
+def parse_opening_hours(body):
+    """Validate opens_at / closes_at from a request body.
+
+    Returns (ok, changes). `changes` is {} when neither key is present, otherwise both keys
+    (times, or None/None to clear). They must be given together: both set or both empty.
+    Equal times mean "open 24 hours".
+    """
+    if "opens_at" not in body and "closes_at" not in body:
+        return True, {}
+    ok_open, opens_at = parse_time_of_day(body.get("opens_at"))
+    ok_close, closes_at = parse_time_of_day(body.get("closes_at"))
+    if not (ok_open and ok_close) or (opens_at is None) != (closes_at is None):
+        return False, {}
+    return True, {"opens_at": opens_at, "closes_at": closes_at}
 
 
 def parse_iso_date(value):

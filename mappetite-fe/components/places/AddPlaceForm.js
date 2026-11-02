@@ -6,7 +6,7 @@ import { useCallback, useEffect, useId, useRef, useState } from "react";
 
 import { api } from "@/lib/api";
 import { useI18n } from "@/lib/i18n";
-import PlaceFields, { bodyFromValues, EMPTY_VALUES, validateValues } from "./PlaceFields";
+import PlaceFields, { bodyFromValues, clearFieldErrors, EMPTY_VALUES, validateValues } from "./PlaceFields";
 
 function DuplicateNotice({ title, duplicates, onNavigate, onForce }) {
   const { t } = useI18n();
@@ -56,11 +56,7 @@ export default function AddPlaceForm({ initialUrl = "", onSaved, onCancel, onNav
 
   const onChange = useCallback((patch) => {
     setValues((previous) => ({ ...previous, ...patch }));
-    setErrors((previous) => {
-      const next = { ...previous };
-      Object.keys(patch).forEach((key) => delete next[key]);
-      return next;
-    });
+    setErrors((previous) => clearFieldErrors(previous, patch));
   }, []);
 
   const runParse = useCallback(

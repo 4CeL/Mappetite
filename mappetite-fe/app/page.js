@@ -5,23 +5,23 @@ import Link from "next/link";
 import {
   ArrowRight,
   Bookmark,
+  CalendarDays,
   Check,
   ChevronRight,
-  ChevronDown,
+  Clock,
   Compass,
-  Edit2,
   ExternalLink,
   MapPin,
   MoreHorizontal,
   Navigation,
   PanelLeftClose,
   PanelLeftOpen,
+  Pencil,
   Plus,
   Share2,
   Star,
   Trash2,
   X,
-  Clock,
   Wallet,
 } from "lucide-react";
 
@@ -32,11 +32,13 @@ import EmptyState from "@/components/places/EmptyState";
 import PlaceThumb from "@/components/places/PlaceThumb";
 import { PlaceCardSkeleton } from "@/components/places/PlaceCard";
 import StatusBadge from "@/components/places/StatusBadge";
-import { RatingPill } from "@/components/places/Rating";
+import OpeningHours from "@/components/places/OpeningHours";
+import { RatingPill, StarRating } from "@/components/places/Rating";
 import { usePlaces } from "@/components/providers/PlacesProvider";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { sortPlaces } from "@/lib/filters";
 import { shortArea } from "@/lib/format";
+import { hasHours } from "@/lib/hours";
 import { useI18n } from "@/lib/i18n";
 import { getFoodPhoto } from "@/lib/food-images";
 import { openInMapsUrl, directionsUrl } from "@/lib/maps";
@@ -174,7 +176,8 @@ function NearbyCard({ place, selected, onSelect }) {
 
 /* ── Right Detail Panel (Desktop) ────────────────────────────────── */
 function DetailPanel({ place, onClose, onDelete }) {
-  const { lang, t, formatDistance } = useI18n();
+  const { lang, t, formatDistance, formatNumber, formatDate } = useI18n();
+  const { openEdit } = usePlaces();
   const [imgError, setImgError] = useState(false);
   const photoUrl = getFoodPhoto(place);
   const firstTag = place.tags?.[0]?.name;
@@ -242,23 +245,20 @@ function DetailPanel({ place, onClose, onDelete }) {
               <StatusBadge status={place.status} className="shrink-0 mt-0.5" />
             </div>
             
-            <div className="flex items-center gap-1.5 mt-1.5 flex-wrap text-xs">
-              {place.rating != null && (
-                <div className="flex items-center gap-1">
-                  <span className="text-sm font-bold text-ink-800">{Number(place.rating).toFixed(1)}</span>
-                  <div className="flex">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="size-3 text-[#F59E0B] fill-current" />
-                    ))}
-                  </div>
-                  {place.google_maps_rating_count != null && (
-                    <span className="text-ink-400">({place.google_maps_rating_count.toLocaleString()})</span>
-                  )}
-                </div>
-              )}
-              <span className="text-ink-300">·</span>
-              <span className="font-semibold text-ink-700">Rp 25–50K</span>
-            </div>
+            {(place.rating != null || place.price_level) && (
+              <div className="flex items-center gap-1.5 mt-1.5 flex-wrap text-xs">
+                {place.rating != null && (
+                  <span className="flex items-center gap-1">
+                    <span className="text-sm font-bold text-ink-800">{formatNumber(place.rating, 1)}</span>
+                    <StarRating value={place.rating} size="size-3" />
+                  </span>
+                )}
+                {place.rating != null && place.price_level ? <span className="text-ink-300">·</span> : null}
+                {place.price_level ? (
+                  <span className="font-semibold text-ink-700">{t(`price.${place.price_level}`)}</span>
+                ) : null}
+              </div>
+            )}
 
             <p className="text-xs text-ink-500 mt-1">
               {[firstTag, distance].filter(Boolean).join(" · ")}
@@ -293,23 +293,30 @@ function DetailPanel({ place, onClose, onDelete }) {
             </div>
           )}
 
-          <div className="flex items-start gap-2.5">
-            <Clock className="size-4 text-[#D96B43] shrink-0 mt-0.5" />
-            <div className="text-xs">
-              <p>
-                <span className="font-semibold text-[#4E8746]">Open</span>
-                <span className="text-ink-600"> · Closes 12.00 am</span>
-                <ChevronDown className="inline size-3 ml-1 text-ink-400" />
-              </p>
+          {hasHours(place) ? (
+            <div className="flex items-start gap-2.5">
+              <Clock className="size-4 text-[#D96B43] shrink-0 mt-0.5" />
+              <OpeningHours place={place} className="text-xs" />
             </div>
-          </div>
+          ) : null}
 
           <div className="flex items-start gap-2.5">
-            <Wallet className="size-4 text-[#D96B43] shrink-0 mt-0.5" />
-            <div className="text-xs">
-              <p className="font-semibold text-ink-800">Rp 25.000–50.000 per person</p>
-            </div>
+            <CalendarDays className="size-4 text-[#D96B43] shrink-0 mt-0.5" />
+            <p className="text-xs text-ink-700">
+              {place.status === "visited" && place.visited_at
+                ? t("place.visitedOnDate", { date: formatDate(place.visited_at) })
+                : t("place.addedOnDate", { date: formatDate(place.created_at) })}
+            </p>
           </div>
+
+          {place.price_level ? (
+            <div className="flex items-start gap-2.5">
+              <Wallet className="size-4 text-[#D96B43] shrink-0 mt-0.5" />
+              <p className="text-xs font-semibold text-ink-800">
+                {t("price.perPerson", { price: t(`price.full.${place.price_level}`) })}
+              </p>
+            </div>
+          ) : null}
 
           <div>
             <h3 className="text-xs font-bold text-ink-800 mb-2">{t("detail.visitStatus")}</h3>
@@ -359,9 +366,17 @@ function DetailPanel({ place, onClose, onDelete }) {
               href={`/places/detail/?id=${encodeURIComponent(place.id)}`}
               className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-[#485635] hover:bg-[#3B472A] text-white px-4 py-3 text-xs font-bold shadow-sm transition-all"
             >
-              <Edit2 className="size-4" /> {t("place.detailShort")}
+              <ArrowRight className="size-4" /> {t("place.detailShort")}
             </Link>
-            {onDelete && (
+            <button
+              type="button"
+              onClick={() => openEdit(place.id)}
+              className="flex size-11 items-center justify-center rounded-xl border border-[#EAE5D9] bg-white text-ink-700 hover:bg-[#F2EFE8] transition-colors"
+              aria-label={t("place.edit")}
+              title={t("place.edit")}
+            >
+              <Pencil className="size-4" aria-hidden="true" />
+            </button>            {onDelete && (
               <button
                 type="button"
                 onClick={() => onDelete(place)}
@@ -621,7 +636,8 @@ export default function HomePage() {
 
 /* ── Mobile Bottom Sheet (Fix Interaksi & Layout) ────────────────── */
 function MobileBottomSheet({ places, selected, counts, status, onSelect, onClose, onAdd, onReload }) {
-  const { t } = useI18n();
+  const { t, formatNumber, formatDate } = useI18n();
+  const { openEdit } = usePlaces();
   const [isExpanded, setIsExpanded] = useState(true);
   const [showFullList, setShowFullList] = useState(false);
   
@@ -630,12 +646,18 @@ function MobileBottomSheet({ places, selected, counts, status, onSelect, onClose
   const [isDragging, setIsDragging] = useState(false);
   const [imgError, setImgError] = useState(false);
 
-  useEffect(() => {
-    if (selected) {
+  // Open the sheet and retry the photo whenever a *different* restaurant gets selected.
+  // Done while rendering (React's "adjust state on prop change" pattern) instead of in an
+  // effect, and keyed by id so a data refresh of the same restaurant doesn't re-open the sheet.
+  const selectedId = selected?.id ?? null;
+  const [trackedSelectedId, setTrackedSelectedId] = useState(selectedId);
+  if (selectedId !== trackedSelectedId) {
+    setTrackedSelectedId(selectedId);
+    if (selectedId) {
       setIsExpanded(true);
       setImgError(false);
     }
-  }, [selected]);
+  }
 
   const handleTouchStart = (e) => {
     setIsDragging(true);
@@ -751,23 +773,20 @@ function MobileBottomSheet({ places, selected, counts, status, onSelect, onClose
                  <div className="px-4">
                     <div className="mb-4">
                       <h2 className="text-xl font-extrabold text-ink-900 leading-tight">{selected.name}</h2>
-                      <div className="flex items-center gap-1.5 mt-1 flex-wrap text-sm">
-                        {selected.rating != null && (
-                          <div className="flex items-center gap-1">
-                            <span className="font-bold text-ink-800">{Number(selected.rating).toFixed(1)}</span>
-                            <div className="flex">
-                              {[...Array(5)].map((_, i) => (
-                                <Star key={i} className="size-3.5 text-[#F59E0B] fill-current" />
-                              ))}
-                            </div>
-                            {selected.google_maps_rating_count != null && (
-                              <span className="text-ink-400">({selected.google_maps_rating_count.toLocaleString()})</span>
-                            )}
-                          </div>
-                        )}
-                        <span className="text-ink-300">·</span>
-                        <span className="font-semibold text-ink-700">Rp 25–50K</span>
-                      </div>
+                      {(selected.rating != null || selected.price_level) && (
+                        <div className="flex items-center gap-1.5 mt-1 flex-wrap text-sm">
+                          {selected.rating != null && (
+                            <span className="flex items-center gap-1">
+                              <span className="font-bold text-ink-800">{formatNumber(selected.rating, 1)}</span>
+                              <StarRating value={selected.rating} size="size-3.5" />
+                            </span>
+                          )}
+                          {selected.rating != null && selected.price_level ? <span className="text-ink-300">·</span> : null}
+                          {selected.price_level ? (
+                            <span className="font-semibold text-ink-700">{t(`price.${selected.price_level}`)}</span>
+                          ) : null}
+                        </div>
+                      )}
                       <p className="text-sm text-ink-500 mt-1">
                         {selected.tags?.[0]?.name || "Restoran"}
                       </p>
@@ -786,9 +805,16 @@ function MobileBottomSheet({ places, selected, counts, status, onSelect, onClose
                         href={`/places/detail/?id=${encodeURIComponent(selected.id)}`}
                         className="flex-1 flex items-center justify-center gap-2 bg-white border border-[#EAE5D9] text-ink-900 py-3 rounded-xl text-sm font-bold hover:bg-stone-50"
                       >
-                        <Edit2 className="size-4" /> Detail
+                        <ArrowRight className="size-4" /> Detail
                       </a>
-                    </div>
+                      <button
+                        type="button"
+                        onClick={() => openEdit(selected.id)}
+                        className="flex size-12 shrink-0 items-center justify-center rounded-xl border border-[#EAE5D9] bg-white text-ink-700 hover:bg-stone-50"
+                        aria-label={t("place.edit")}
+                      >
+                        <Pencil className="size-4" aria-hidden="true" />
+                      </button>                    </div>
 
                     <div className="flex flex-col gap-3 text-sm text-ink-700">
                       {selected.address && (
@@ -797,22 +823,28 @@ function MobileBottomSheet({ places, selected, counts, status, onSelect, onClose
                            <p className="leading-relaxed">{selected.address}</p>
                         </div>
                       )}
+                      {hasHours(selected) ? (
+                        <div className="flex items-start gap-3">
+                           <Clock className="size-5 shrink-0 text-[#D96B43] mt-0.5" />
+                           <OpeningHours place={selected} />
+                        </div>
+                      ) : null}
                       <div className="flex items-start gap-3">
-                         <Clock className="size-5 shrink-0 text-[#D96B43] mt-0.5" />
-                         <div>
-                            <p>
-                              <span className="text-[#4E8746] font-semibold">Open</span>
-                              <span className="text-ink-600"> · Closes 12.00 am</span>
-                              <ChevronDown className="inline size-4 ml-1 text-ink-400" />
-                            </p>
-                         </div>
+                         <CalendarDays className="size-5 shrink-0 text-[#D96B43] mt-0.5" />
+                         <p>
+                           {selected.status === "visited" && selected.visited_at
+                             ? t("place.visitedOnDate", { date: formatDate(selected.visited_at) })
+                             : t("place.addedOnDate", { date: formatDate(selected.created_at) })}
+                         </p>
                       </div>
-                      <div className="flex items-start gap-3">
-                         <Wallet className="size-5 shrink-0 text-[#D96B43] mt-0.5" />
-                         <div>
-                           <p className="font-semibold text-ink-900">Rp 25.000–50.000 per person</p>
-                         </div>
-                      </div>
+                      {selected.price_level ? (
+                        <div className="flex items-start gap-3">
+                           <Wallet className="size-5 shrink-0 text-[#D96B43] mt-0.5" />
+                           <p className="font-semibold text-ink-900">
+                             {t("price.perPerson", { price: t(`price.full.${selected.price_level}`) })}
+                           </p>
+                        </div>
+                      ) : null}
                     </div>
                  </div>
               </div>
@@ -824,7 +856,7 @@ function MobileBottomSheet({ places, selected, counts, status, onSelect, onClose
                       onClick={() => onSelect(place.id)}
                       className="flex items-center gap-3 w-full p-2 rounded-2xl bg-white border border-[#EAE5D9] hover:bg-[#F2EFE8] text-left transition-colors shadow-sm"
                     >
-                      <img src={getFoodPhoto(place)} className="size-16 rounded-xl object-cover" />
+                      <img src={getFoodPhoto(place)} alt="" className="size-16 rounded-xl object-cover" />
                       <div className="flex-1 min-w-0">
                         <h4 className="text-sm font-bold text-ink-900 truncate">{place.name}</h4>
                         <p className="text-[11px] text-ink-500 truncate">{shortArea(place.address)}</p>
@@ -885,13 +917,15 @@ function MobileBottomSheet({ places, selected, counts, status, onSelect, onClose
                              · {place.tags?.[0]?.name || "Restoran"}
                           </p>
 
-                          <p className="text-[13px] mt-2 flex items-center gap-1.5">
-                             <span className="text-[#4E8746] font-semibold">Open</span>
-                             <span className="text-ink-300">·</span>
-                             <span className="text-ink-500">Closes 11.00 pm</span>
-                             <span className="text-ink-300">·</span>
-                             <span className="text-ink-500">{place.distanceKm ? `${place.distanceKm.toFixed(1)} km` : ""}</span>
-                          </p>
+                          {hasHours(place) || place.distanceKm ? (
+                            <p className="text-[13px] mt-2 flex flex-wrap items-center gap-x-1.5">
+                               {hasHours(place) ? <OpeningHours place={place} /> : null}
+                               {hasHours(place) && place.distanceKm ? <span className="text-ink-300">·</span> : null}
+                               {place.distanceKm ? (
+                                 <span className="text-ink-500">{`${place.distanceKm.toFixed(1)} km`}</span>
+                               ) : null}
+                            </p>
+                          ) : null}
 
                           <p className="text-[12px] text-ink-400 mt-2.5 truncate">
                              {shortArea(place.address) || "Area"} : Trending

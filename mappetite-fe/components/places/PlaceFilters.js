@@ -92,11 +92,11 @@ function FilterSheet({ open, onClose }) {
               <button
                 key={price}
                 type="button"
-                className="chip min-w-14 justify-center"
+                className="chip justify-center"
                 aria-pressed={filters.prices.includes(price)}
                 onClick={() => update({ prices: toggle(filters.prices, price) })}
               >
-                {"$".repeat(price)}
+                {t(`price.${price}`)}
               </button>
             ))}
           </div>

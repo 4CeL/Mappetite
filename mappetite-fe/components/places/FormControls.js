@@ -23,26 +23,26 @@ export function StatusToggle({ value, onChange }) {
   );
 }
 
-/** $ – $$$$, click the active one again to clear. */
+/** Four price ranges (price_level 1–4), click the active one again to clear. */
 export function PriceSelector({ value, onChange }) {
   const { t } = useI18n();
   return (
     <fieldset>
       <legend className="field-label">{t("add.price")}</legend>
-      <div className="grid grid-cols-4 gap-2">
+      <div className="grid grid-cols-2 gap-2">
         {[1, 2, 3, 4].map((level) => (
           <button
             key={level}
             type="button"
             aria-pressed={value === level}
             onClick={() => onChange(value === level ? null : level)}
-            className={`min-h-11 rounded-xl border text-sm transition-colors ${
+            className={`min-h-11 rounded-xl border px-2 text-[13px] transition-colors ${
               value === level
                 ? "border-primary-700 bg-primary-50 font-bold text-primary-800"
                 : "border-line bg-white text-ink-600 hover:bg-chip"
             }`}
           >
-            {"$".repeat(level)}
+            {t(`price.${level}`)}
           </button>
         ))}
       </div>

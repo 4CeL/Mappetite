@@ -8,6 +8,7 @@ import { useEffect } from "react";
 import LanguageToggle from "@/components/LanguageToggle";
 import Logo, { LogoMark } from "@/components/Logo";
 import AddPlaceModal from "@/components/places/AddPlaceModal";
+import EditPlaceModal from "@/components/places/EditPlaceModal";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { usePlaces } from "@/components/providers/PlacesProvider";
 import { useI18n } from "@/lib/i18n";
@@ -156,6 +157,7 @@ export default function AppShell({ children }) {
       </main>
       {!isCustomLayout && <BottomNav path={path} />}
       <AddPlaceModal />
+      <EditPlaceModal />
     </div>
   );
 }
