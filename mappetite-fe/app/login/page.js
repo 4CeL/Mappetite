@@ -1,9 +1,10 @@
 "use client";
 
-import { AlertTriangle, Loader2 } from "lucide-react";
+import { AlertTriangle, ArrowRight, Loader2, Mail } from "lucide-react";
 import Link from "next/link";
 import { useId, useState } from "react";
 
+import AuthField from "@/components/auth/AuthField";
 import AuthLayout from "@/components/auth/AuthLayout";
 import GoogleButton from "@/components/auth/GoogleButton";
 import PasswordInput from "@/components/auth/PasswordInput";
@@ -32,12 +33,13 @@ export default function LoginPage() {
 
   return (
     <AuthLayout
+      eyebrow={t("auth.welcomeBack")}
       title={t("auth.loginTitle")}
       subtitle={t("auth.loginSubtitle")}
       footer={
         <>
           {t("auth.noAccount")}{" "}
-          <Link href="/register/" className="font-bold text-primary-800 underline underline-offset-2">
+          <Link href="/register/" className="font-bold text-primary-800 underline underline-offset-2 hover:text-primary-900">
             {t("auth.registerLink")}
           </Link>
         </>
@@ -50,22 +52,19 @@ export default function LoginPage() {
             <p>{tError(state.error)}</p>
           </div>
         ) : null}
-        <div>
-          <label htmlFor={ids.email} className="field-label">
-            {t("auth.email")}
-          </label>
-          <input
-            id={ids.email}
-            type="email"
-            className="input"
-            value={form.email}
-            onChange={(event) => setForm({ ...form, email: event.target.value })}
-            autoComplete="email"
-            inputMode="email"
-            required
-            aria-describedby={state.error ? ids.error : undefined}
-          />
-        </div>
+        <AuthField
+          id={ids.email}
+          label={t("auth.email")}
+          icon={Mail}
+          type="email"
+          value={form.email}
+          onChange={(event) => setForm({ ...form, email: event.target.value })}
+          placeholder={t("auth.emailPlaceholder")}
+          autoComplete="email"
+          inputMode="email"
+          required
+          aria-describedby={state.error ? ids.error : undefined}
+        />
         <div>
           <label htmlFor={ids.password} className="field-label">
             {t("auth.password")}
@@ -74,12 +73,21 @@ export default function LoginPage() {
             id={ids.password}
             value={form.password}
             onChange={(event) => setForm({ ...form, password: event.target.value })}
+            placeholder={t("auth.passwordPlaceholder")}
             autoComplete="current-password"
           />
         </div>
-        <button type="submit" className="btn btn-primary mt-2 min-h-12" disabled={loading || !form.email || !form.password}>
-          {loading ? <Loader2 className="size-4 animate-spin" aria-hidden="true" /> : null}
+        <button
+          type="submit"
+          className="btn btn-primary group mt-2 min-h-12 text-[15px] shadow-card"
+          disabled={loading || !form.email || !form.password}
+        >
           {t("auth.login")}
+          {loading ? (
+            <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+          ) : (
+            <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
+          )}
         </button>
       </form>
       <GoogleButton onError={(error) => setState({ status: "error", error })} />

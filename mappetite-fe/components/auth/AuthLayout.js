@@ -1,26 +1,42 @@
 "use client";
 
-import LanguageToggle from "@/components/LanguageToggle";
-import Logo from "@/components/Logo";
-import { useI18n } from "@/lib/i18n";
+import { Sparkles } from "lucide-react";
 
-export default function AuthLayout({ title, subtitle, children, footer }) {
-  const { t } = useI18n();
+import { AuthBanner, AuthHero } from "@/components/auth/AuthHero";
+import LanguageToggle from "@/components/LanguageToggle";
+
+/**
+ * Login / register shell. Desktop: brand panel on the left, form on the right.
+ * Phone: a brand banner on top with the form sheet overlapping its bottom edge.
+ */
+export default function AuthLayout({ eyebrow, title, subtitle, children, footer }) {
   return (
-    <div className="flex min-h-dvh flex-col bg-cream">
-      <div className="flex items-center justify-between px-5 py-4 sm:px-8">
-        <Logo />
-        <LanguageToggle />
-      </div>
-      <main id="main" className="flex flex-1 items-start justify-center px-5 pb-10 pt-4 sm:items-center sm:pt-0">
-        <div className="w-full max-w-md">
-          <p className="mb-6 hidden text-center text-sm text-ink-600 sm:block">{t("app.tagline")}</p>
-          <div className="card px-6 py-7 sm:px-8">
-            <h1 className="text-2xl font-bold text-ink-900">{title}</h1>
-            {subtitle ? <p className="mt-1 text-sm text-ink-500">{subtitle}</p> : null}
-            <div className="mt-6">{children}</div>
-          </div>
-          {footer ? <p className="mt-5 text-center text-sm text-ink-600">{footer}</p> : null}
+    <div className="min-h-dvh bg-cream lg:grid lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)]">
+      <AuthHero />
+      <AuthBanner right={<LanguageToggle />} />
+
+      <main
+        id="main"
+        className="relative z-10 -mt-7 rounded-t-[1.75rem] bg-cream px-6 pb-10 pt-8 sm:px-10 lg:mt-0 lg:flex lg:min-h-dvh lg:flex-col lg:rounded-none lg:px-14 lg:py-8"
+      >
+        <div className="hidden justify-end lg:flex">
+          <LanguageToggle />
+        </div>
+        <div className="mx-auto w-full max-w-md lg:my-auto">
+          {eyebrow ? (
+            <p className="mb-3 inline-flex items-center gap-1.5 rounded-full bg-primary-50 px-3 py-1 text-xs font-bold text-primary-800">
+              <Sparkles className="size-3.5 text-visited-500" aria-hidden="true" />
+              {eyebrow}
+            </p>
+          ) : null}
+          <h1 className="text-[1.75rem] font-extrabold leading-tight tracking-tight text-ink-900 lg:text-[2rem]">
+            {title}
+          </h1>
+          {subtitle ? <p className="mt-1.5 text-balance text-[15px] text-ink-600">{subtitle}</p> : null}
+          <div className="mt-7">{children}</div>
+          {footer ? (
+            <p className="mt-8 border-t border-line pt-6 text-center text-sm text-ink-600">{footer}</p>
+          ) : null}
         </div>
       </main>
     </div>

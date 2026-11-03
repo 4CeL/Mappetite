@@ -250,6 +250,29 @@
   box-shadow: 0 0 0 8px rgb(93 108 75 / 0.18);
 }
 
+/* ---------- Login / register ---------- */
+/* Cards in the hero are tilted with --mp-rot and float gently (only when motion is allowed). */
+.mp-tilt {
+  transform: rotate(var(--mp-rot, 0deg));
+}
+@keyframes mp-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(var(--mp-rot, 0deg));
+  }
+  50% {
+    transform: translateY(-8px) rotate(var(--mp-rot, 0deg));
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .mp-float {
+    animation: mp-float 6s ease-in-out infinite;
+  }
+  .mp-float-slow {
+    animation: mp-float 8s ease-in-out -3s infinite;
+  }
+}
+
 /* Sembunyikan scrollbar horizontal secara total */
 .hide-scrollbar::-webkit-scrollbar {
   display: none;

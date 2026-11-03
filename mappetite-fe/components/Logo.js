@@ -41,19 +41,31 @@ export function LogoMark({ className = "size-10", title }) {
   );
 }
 
-export default function Logo({ size = "md" }) {
+/** `tone="light"` is for dark backgrounds: white wordmark, and the mark sits on a white disc. */
+export default function Logo({ size = "md", tone = "dark" }) {
   const large = size === "lg";
+  const light = tone === "light";
   return (
     <span className="inline-flex items-center gap-2">
-      <LogoMark className={large ? "size-14" : "size-10"} />
-      <span className={`relative font-extrabold tracking-tight text-ink-900 ${large ? "text-3xl" : "text-[22px]"}`}>
+      {light ? (
+        <span className="flex items-center justify-center rounded-full bg-white p-1.5 shadow-card">
+          <LogoMark className={large ? "size-12" : "size-8"} />
+        </span>
+      ) : (
+        <LogoMark className={large ? "size-14" : "size-10"} />
+      )}
+      <span
+        className={`relative font-extrabold tracking-tight ${light ? "text-white" : "text-ink-900"} ${
+          large ? "text-3xl" : "text-[22px]"
+        }`}
+      >
         Mappetite
         <svg
           viewBox="0 0 16 12"
           aria-hidden="true"
           className={`absolute ${large ? "-right-2 -top-2 w-5" : "-right-1.5 -top-1.5 w-4"}`}
         >
-          <path d="M1 10C3 4 9 1 15 2C13 8 7 12 1 10Z" fill="#5C6B4A" />
+          <path d="M1 10C3 4 9 1 15 2C13 8 7 12 1 10Z" fill={light ? "#D8E0CC" : "#5C6B4A"} />
         </svg>
       </span>
     </span>
