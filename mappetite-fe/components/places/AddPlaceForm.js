@@ -6,6 +6,7 @@ import { useCallback, useEffect, useId, useRef, useState } from "react";
 
 import { api } from "@/lib/api";
 import { useI18n } from "@/lib/i18n";
+import { syncPhotos } from "@/lib/photos";
 import PlaceFields, { bodyFromValues, clearFieldErrors, EMPTY_VALUES, validateValues } from "./PlaceFields";
 
 function DuplicateNotice({ title, duplicates, onNavigate, onForce }) {
@@ -109,16 +110,29 @@ export default function AddPlaceForm({ initialUrl = "", onSaved, onCancel, onNav
       return;
     }
     setSubmit({ status: "saving", error: null, duplicates: [] });
+    let place;
     try {
-      const place = await api.createPlace({ ...bodyFromValues(values), ...meta, force });
-      onSaved?.(place);
+      place = await api.createPlace({ ...bodyFromValues(values), ...meta, force });
     } catch (error) {
       if (error?.key === "places.possible_duplicate" || error?.key === "places.already_saved") {
         setSubmit({ status: "duplicate", error, duplicates: error.data?.duplicates || [] });
       } else {
         setSubmit({ status: "error", error, duplicates: [] });
       }
+      return;
     }
+
+    // The place exists now, so it has an id the photos can be attached to.
+    if (values.photos.length) {
+      const { place: fresh, failed, failedOther } = await syncPhotos(place, values.photos);
+      place = fresh;
+      if (failed.length + failedOther > 0) {
+        // Saved, but not every photo made it. Saving again would create a duplicate, so stop here.
+        setSubmit({ status: "saved_partial", error: null, duplicates: [], place, count: failed.length + failedOther });
+        return;
+      }
+    }
+    onSaved?.(place);
   };
 
   const handleSave = (event) => {
@@ -128,6 +142,7 @@ export default function AddPlaceForm({ initialUrl = "", onSaved, onCancel, onNav
 
   const parsing = parse.status === "parsing";
   const saving = submit.status === "saving";
+  const savedPartial = submit.status === "saved_partial";
   const showFields = manual || parse.status === "done" || parse.status === "no_location";
 
   return (
@@ -212,6 +227,7 @@ export default function AddPlaceForm({ initialUrl = "", onSaved, onCancel, onNav
             onChange={onChange}
             errors={errors}
             locationHint={manual && parse.status !== "done" ? t("add.manualHint") : undefined}
+            disabled={saving || savedPartial}
           />
 
           {submit.status === "duplicate" ? (
@@ -229,16 +245,31 @@ export default function AddPlaceForm({ initialUrl = "", onSaved, onCancel, onNav
             </div>
           ) : null}
 
+          {savedPartial ? (
+            <div className="alert alert-warning" role="alert">
+              <AlertTriangle className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+              <p>{t("photos.savedPartial", { count: submit.count })}</p>
+            </div>
+          ) : null}
+
           <div className={`sticky bottom-0 -mx-6 -mb-5 flex justify-end gap-3 border-t border-line bg-white px-6 py-4 sm:-mx-8 sm:px-8 ${actionsClassName}`}>
-            {onCancel ? (
-              <button type="button" className="btn btn-outline" onClick={onCancel}>
-                {t("add.cancel")}
+            {savedPartial ? (
+              <button type="button" className="btn btn-primary px-6" onClick={() => onSaved?.(submit.place)}>
+                {t("photos.continue")}
               </button>
-            ) : null}
-            <button type="submit" className="btn btn-primary px-6" disabled={saving}>
-              {saving ? <Loader2 className="size-4 animate-spin" aria-hidden="true" /> : null}
-              {saving ? t("add.saving") : t("add.save")}
-            </button>
+            ) : (
+              <>
+                {onCancel ? (
+                  <button type="button" className="btn btn-outline" onClick={onCancel} disabled={saving}>
+                    {t("add.cancel")}
+                  </button>
+                ) : null}
+                <button type="submit" className="btn btn-primary px-6" disabled={saving}>
+                  {saving ? <Loader2 className="size-4 animate-spin" aria-hidden="true" /> : null}
+                  {saving ? t("add.saving") : t("add.save")}
+                </button>
+              </>
+            )}
           </div>
         </form>
       ) : null}

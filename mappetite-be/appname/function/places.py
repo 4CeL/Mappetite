@@ -27,6 +27,7 @@ from appname.helpers.validation import (
 )
 from appname.services.geocoding import reverse_geocode
 from appname.services.link_parser import LinkError, is_allowed_maps_url, resolve_and_parse
+from appname.services.storage import delete_objects, public_url
 
 SORT_OPTIONS = ("newest", "oldest", "name", "rating")
 PAGE_SIZE_MAX = 500
@@ -40,6 +41,11 @@ def _serialize(row):
     item["place_id"] = str(item["place_id"])
     item["rating"] = float(item["rating"]) if item.get("rating") is not None else None
     item["tags"] = [{"id": str(tag["id"]), "name": tag["name"]} for tag in (item.get("tags") or [])]
+    item["photos"] = [
+        {"id": str(photo["id"]), "url": public_url(photo["path"]), "width": photo["width"], "height": photo["height"]}
+        for photo in (item.get("photos") or [])
+    ]
+    item["cover_url"] = item["photos"][0]["url"] if item["photos"] else None
     return item
 
 
@@ -321,9 +327,11 @@ def UpdateSavedPlace(user_id, saved_place_id, body):
 def DeleteSavedPlace(user_id, saved_place_id):
     if not is_uuid(saved_place_id):
         return _not_found()
-    err_code, err_msg, deleted = dataDeleteSavedPlace(user_id, saved_place_id)
+    err_code, err_msg, photo_paths = dataDeleteSavedPlace(user_id, saved_place_id)
     if err_code:
         return db_fail(err_code, err_msg)
-    if not deleted:
+    if photo_paths is None:
         return _not_found()
+    # The rows are gone; remove the files too. A failure only leaves orphan files.
+    delete_objects(photo_paths)
     return ok("Success DeleteSavedPlace", {"id": saved_place_id})

@@ -38,7 +38,15 @@ SAVED_PLACE_COLUMNS = """
         FROM saved_place_tags spt
         JOIN tags t ON t.tag_id = spt.tag_id
         WHERE spt.saved_place_id = sp.saved_place_id
-    ), '[]'::json) AS tags
+    ), '[]'::json) AS tags,
+    COALESCE((
+        SELECT json_agg(
+            json_build_object('id', ph.photo_id, 'path', ph.storage_path, 'width', ph.width, 'height', ph.height)
+            ORDER BY ph.position, ph.created_at
+        )
+        FROM place_photos ph
+        WHERE ph.saved_place_id = sp.saved_place_id
+    ), '[]'::json) AS photos
 """
 SAVED_PLACE_FROM = " FROM saved_places sp JOIN places p ON p.place_id = sp.place_id"
 SAVED_PLACE_SELECT = "SELECT" + SAVED_PLACE_COLUMNS + SAVED_PLACE_FROM
@@ -302,21 +310,32 @@ def dataUpdateSavedPlace(user_id, saved_place_id, personal, location, tag_names)
 
 
 def dataDeleteSavedPlace(user_id, saved_place_id):
-    """Delete a saved place; remove the place row too when nobody else uses it."""
+    """Delete a saved place; remove the place row too when nobody else uses it.
+
+    Returns the Storage paths of the place's photos (the rows cascade away, the
+    files do not) or None when the saved place does not exist.
+    """
 
     def operation(cur):
+        cur.execute(
+            "SELECT ph.storage_path FROM place_photos ph "
+            "JOIN saved_places sp ON sp.saved_place_id = ph.saved_place_id "
+            "WHERE sp.saved_place_id = %s AND sp.user_id = %s",
+            (saved_place_id, user_id),
+        )
+        photo_paths = [row["storage_path"] for row in cur.fetchall()]
         cur.execute(
             "DELETE FROM saved_places WHERE saved_place_id = %s AND user_id = %s RETURNING place_id",
             (saved_place_id, user_id),
         )
         row = cur.fetchone()
         if row is None:
-            return False
+            return None
         cur.execute(
             "DELETE FROM places WHERE place_id = %s AND NOT EXISTS "
             "(SELECT 1 FROM saved_places WHERE place_id = %s)",
             (row["place_id"], row["place_id"]),
         )
-        return True
+        return photo_paths
 
     return run_db(operation)

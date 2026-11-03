@@ -70,9 +70,20 @@ File `.env` / `.env.local` **tidak di-commit** ke git (sudah diatur di `.gitigno
 - [ ] Buka Supabase → **SQL Editor** → New query.
 - [ ] Salin seluruh isi `mappetite-be/db/migrations/001_init.sql`, tempel, klik **Run**.
 - [ ] Lalu jalankan `mappetite-be/db/migrations/002_opening_hours.sql` dengan cara yang sama (menambah kolom jam buka/tutup). Migrasi dijalankan berurutan sesuai nomor file.
-- [ ] Cek di **Table Editor**: ada tabel `users`, `places`, `saved_places`, `tags`, `saved_place_tags`, `geocode_cache`, dan tabel `saved_places` punya kolom `opens_at` dan `closes_at`.
+- [ ] Lalu jalankan `mappetite-be/db/migrations/003_place_photos.sql` (tabel `place_photos` untuk foto restoran).
+- [ ] Cek di **Table Editor**: ada tabel `users`, `places`, `saved_places`, `tags`, `saved_place_tags`, `geocode_cache`, `place_photos`, dan tabel `saved_places` punya kolom `opens_at` dan `closes_at`.
 
 File migrasi aman dijalankan ulang (pakai `IF NOT EXISTS`). Migrasi ini juga mengaktifkan Row Level Security tanpa policy, supaya tabel tidak bisa diakses lewat REST API publik Supabase; backend tetap bisa akses karena terhubung sebagai pemilik tabel.
+
+### 7b. Upload foto (opsional, tanpa ini semua fitur lain tetap jalan)
+
+Tanpa langkah ini, tombol simpan tetap berfungsi, tetapi foto ditolak dengan pesan "Unggah foto belum aktif di server".
+
+- [ ] Supabase → **Project Settings → API**: salin **Project URL** dan **service_role** secret.
+- [ ] Isi di `mappetite-be/.env`: `SUPABASE_URL=https://<ref>.supabase.co` dan `SUPABASE_SERVICE_ROLE_KEY=<service_role>`. Key ini **rahasia**: hanya di backend (`.env` lokal dan environment variable di Render), jangan di frontend atau git.
+- [ ] Dari folder `mappetite-be`, jalankan sekali: `.\.venv\Scripts\python.exe scripts\create_photo_bucket.py`. Skrip membuat bucket publik `place-photos` (maks 1,5 MB per file, hanya JPEG/PNG/WebP). Aman dijalankan ulang.
+- [ ] Restart backend, lalu coba tambah foto lewat menu Edit sebuah restoran.
+- [ ] Di Render, tambahkan `SUPABASE_URL` dan `SUPABASE_SERVICE_ROLE_KEY` yang sama.
 
 ## 8. Menjalankan secara lokal
 
@@ -126,5 +137,5 @@ Setelah keduanya online:
 2. Buat OAuth Client ID di Google Cloud, catat Client ID-nya (bagian 3) — opsional untuk mulai.
 3. Generate `JWT_SECRET` (bagian 4).
 4. Salin `.env.example` → `.env` / `.env.local` dan isi nilainya (bagian 6).
-5. Jalankan `001_init.sql` lalu `002_opening_hours.sql` di Supabase SQL Editor (bagian 7).
+5. Jalankan `001_init.sql`, `002_opening_hours.sql`, dan `003_place_photos.sql` di Supabase SQL Editor (bagian 7). Untuk upload foto, lanjut ke bagian 7b.
 6. Jalankan backend + frontend (bagian 8), lalu coba tempel link Google Maps asli.

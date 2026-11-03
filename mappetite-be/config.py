@@ -47,6 +47,13 @@ class Config:
     PORT = _int("PORT", 5000)
     MAX_CONTENT_LENGTH = 64 * 1024  # request bodies are small JSON payloads
 
+    # Photo storage (Supabase Storage). The service role key is a secret: backend only.
+    SUPABASE_URL = os.getenv("SUPABASE_URL", "").strip().rstrip("/")
+    SUPABASE_SERVICE_ROLE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "").strip()
+    PHOTO_BUCKET = os.getenv("PHOTO_BUCKET", "").strip() or "place-photos"
+    MAX_PHOTOS_PER_PLACE = 5
+    PHOTO_MAX_BYTES = 1_500_000  # the browser compresses to ~250 KB; this is the hard ceiling
+
     # Reverse geocoding
     NOMINATIM_URL = os.getenv("NOMINATIM_URL", "https://nominatim.openstreetmap.org/reverse").strip()
     NOMINATIM_USER_AGENT = (

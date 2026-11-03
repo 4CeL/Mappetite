@@ -7,10 +7,11 @@ import Modal from "@/components/Modal";
 import { usePlaces } from "@/components/providers/PlacesProvider";
 import { api } from "@/lib/api";
 import { useI18n } from "@/lib/i18n";
+import { photoItemsFromPlace, syncPhotos } from "@/lib/photos";
 import PlaceFields, { bodyFromValues, clearFieldErrors, validateValues, valuesFromPlace } from "./PlaceFields";
 
 /** The same fields as the "Add restaurant" form, pre-filled with the saved data. */
-function EditPlaceForm({ place, overrides, onSaved, onCancel }) {
+function EditPlaceForm({ place, overrides, onSaved, onPartial, onCancel }) {
   const { t, tError } = useI18n();
   const [values, setValues] = useState(() => ({ ...valuesFromPlace(place), ...overrides }));
   const [errors, setErrors] = useState({});
@@ -29,23 +30,42 @@ function EditPlaceForm({ place, overrides, onSaved, onCancel }) {
       return;
     }
     setSave({ status: "saving", error: null });
+    let updated;
     try {
-      onSaved(await api.updatePlace(place.id, bodyFromValues(values)));
+      updated = await api.updatePlace(place.id, bodyFromValues(values));
     } catch (error) {
       setSave({ status: "error", error });
+      return;
     }
+
+    // The data is saved; now make the server's photos match the form.
+    const { place: fresh, failed, failedOther } = await syncPhotos(updated, values.photos);
+    if (failed.length === 0 && failedOther === 0) {
+      onSaved(fresh);
+      return;
+    }
+    // Keep the dialog open so nothing is lost: show what the server has now plus the files that failed.
+    onPartial(fresh);
+    setValues((previous) => ({ ...previous, photos: [...photoItemsFromPlace(fresh), ...failed] }));
+    setSave({ status: "partial", count: failed.length + failedOther });
   };
 
   const saving = save.status === "saving";
 
   return (
     <form onSubmit={onSubmit} noValidate className="flex flex-col gap-5">
-      <PlaceFields values={values} onChange={onChange} errors={errors} />
+      <PlaceFields values={values} onChange={onChange} errors={errors} disabled={saving} />
 
       {save.status === "error" ? (
         <div className="alert alert-error" role="alert">
           <AlertTriangle className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
           <p>{tError(save.error)}</p>
+        </div>
+      ) : null}
+      {save.status === "partial" ? (
+        <div className="alert alert-warning" role="alert">
+          <AlertTriangle className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+          <p>{t("photos.partialFail", { count: save.count })}</p>
         </div>
       ) : null}
 
@@ -98,7 +118,13 @@ export default function EditPlaceModal() {
         size="lg"
       >
         {place ? (
-          <EditPlaceForm place={place} overrides={editTarget.overrides} onSaved={onSaved} onCancel={closeEdit} />
+          <EditPlaceForm
+            place={place}
+            overrides={editTarget.overrides}
+            onSaved={onSaved}
+            onPartial={upsertPlace}
+            onCancel={closeEdit}
+          />
         ) : null}
       </Modal>
 

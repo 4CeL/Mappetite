@@ -68,6 +68,16 @@ export const api = {
   updatePlace: (id, body) => apiRequest(`/api/places/${encodeURIComponent(id)}`, { method: "PATCH", body }),
   deletePlace: (id) => apiRequest(`/api/places/${encodeURIComponent(id)}`, { method: "DELETE" }),
 
+  photoUploadUrl: (id, body) =>
+    apiRequest(`/api/places/${encodeURIComponent(id)}/photos/upload-url`, { method: "POST", body }),
+  confirmPhoto: (id, body) => apiRequest(`/api/places/${encodeURIComponent(id)}/photos`, { method: "POST", body }),
+  setCoverPhoto: (id, photoId) =>
+    apiRequest(`/api/places/${encodeURIComponent(id)}/photos/${encodeURIComponent(photoId)}/cover`, {
+      method: "PATCH",
+    }),
+  deletePhoto: (id, photoId) =>
+    apiRequest(`/api/places/${encodeURIComponent(id)}/photos/${encodeURIComponent(photoId)}`, { method: "DELETE" }),
+
   listTags: (signal) => apiRequest("/api/tags", { signal }),
   createTag: (name) => apiRequest("/api/tags", { method: "POST", body: { name } }),
   renameTag: (id, name) => apiRequest(`/api/tags/${encodeURIComponent(id)}`, { method: "PATCH", body: { name } }),

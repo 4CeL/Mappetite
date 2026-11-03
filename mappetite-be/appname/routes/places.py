@@ -9,6 +9,7 @@ from appname.function.places import (
     ParseGoogleMapsLink,
     UpdateSavedPlace,
 )
+from appname.function.photos import ConfirmPhoto, CreatePhotoUploadUrl, DeletePhoto, SetCoverPhoto
 from appname.helpers.response import fail, respond
 from appname.helpers.validation import check_required_keys, get_json_body
 from appname.middleware.jwt_middleware import jwt_required
@@ -67,3 +68,37 @@ def update_place(saved_place_id):
 @jwt_required
 def delete_place(saved_place_id):
     return respond(DeleteSavedPlace(g.user_id, saved_place_id))
+
+
+# ---------------------------------------------------------------- photos
+
+@places_bp.post("/<saved_place_id>/photos/upload-url")
+@jwt_required
+@limiter.limit("30 per minute; 300 per hour")
+def photo_upload_url(saved_place_id):
+    body = get_json_body()
+    if body is None:
+        return _invalid_body()
+    return respond(CreatePhotoUploadUrl(g.user_id, saved_place_id, body))
+
+
+@places_bp.post("/<saved_place_id>/photos")
+@jwt_required
+@limiter.limit("30 per minute; 300 per hour")
+def confirm_photo(saved_place_id):
+    body = get_json_body()
+    if body is None:
+        return _invalid_body()
+    return respond(ConfirmPhoto(g.user_id, saved_place_id, body), success_status=201)
+
+
+@places_bp.patch("/<saved_place_id>/photos/<photo_id>/cover")
+@jwt_required
+def set_cover_photo(saved_place_id, photo_id):
+    return respond(SetCoverPhoto(g.user_id, saved_place_id, photo_id))
+
+
+@places_bp.delete("/<saved_place_id>/photos/<photo_id>")
+@jwt_required
+def delete_photo(saved_place_id, photo_id):
+    return respond(DeletePhoto(g.user_id, saved_place_id, photo_id))

@@ -3,7 +3,6 @@
 import {
   Bookmark,
   Calendar,
-  Camera,
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
@@ -26,6 +25,7 @@ import AppSidebar from "@/components/layout/AppSidebar";
 import TopSearchBar from "@/components/layout/TopSearchBar";
 import Modal from "@/components/Modal";
 import OpeningHours from "@/components/places/OpeningHours";
+import PlaceGallery from "@/components/places/PlaceGallery";
 import { StarRating } from "@/components/places/Rating";
 import StatusBadge from "@/components/places/StatusBadge";
 import { usePlaces } from "@/components/providers/PlacesProvider";
@@ -186,51 +186,7 @@ function PlaceDetail() {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
                 {/* LEFT COLUMN — photo flex-1, photos fixed */}
                 <div className="flex flex-col gap-5">
-                  {/* Photo utama — flex-1 biar ngisi sisa tinggi */}
-                  <div className="relative flex-1 min-h-[16rem] overflow-hidden rounded-2xl bg-stone-100">
-                    <img
-                      src={photoUrl}
-                      alt={place.name}
-                      className="absolute inset-0 h-full w-full object-cover"
-                      onError={(e) => {
-                        e.currentTarget.style.display = "none";
-                      }}
-                    />
-                    <span className="absolute top-3 left-3 rounded-full bg-black/50 backdrop-blur-sm px-2.5 py-0.5 text-[10px] font-bold text-white">
-                      1 / 6
-                    </span>
-                  </div>
-
-                  {/* Photos — shrink-0 biar nggak ketarik */}
-                  <div className="shrink-0 rounded-2xl border border-[#EAE5D9] bg-white p-4 shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
-                    <h3 className="flex items-center gap-2 text-[13px] font-extrabold text-ink-900 mb-3">
-                      <Camera className="size-3.5 text-ink-500" />
-                      Photos
-                    </h3>
-                    <div className="grid grid-cols-5 gap-1.5">
-                      {[0, 1, 2, 3, 4].map((i) => (
-                        <div
-                          key={i}
-                          className="relative aspect-square overflow-hidden rounded-lg bg-stone-100"
-                        >
-                          {i < 4 ? (
-                            <img
-                              src={photoUrl}
-                              alt=""
-                              className="h-full w-full object-cover"
-                              onError={(e) => {
-                                e.currentTarget.style.display = "none";
-                              }}
-                            />
-                          ) : (
-                            <div className="flex h-full w-full items-center justify-center bg-stone-200 text-[11px] font-bold text-ink-600">
-                              +2
-                            </div>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+                  <PlaceGallery place={place} placeholderUrl={photoUrl} onAdd={() => openEdit(place.id)} />
                 </div>
 
                 {/* RIGHT COLUMN */}

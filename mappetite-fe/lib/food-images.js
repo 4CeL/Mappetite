@@ -50,6 +50,8 @@ const DEFAULT_FOOD_PHOTO =
   "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=600&auto=format&fit=crop&q=80";
 
 export function getFoodPhoto(place) {
+  // The user's own cover photo wins; the keyword-based stock photo below is only the placeholder.
+  if (place?.cover_url) return place.cover_url;
   if (place?.photo_url) return place.photo_url;
 
   const haystack = ` ${[

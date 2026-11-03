@@ -9,7 +9,9 @@ import { LIMITS } from "@/lib/config";
 import { todayISO } from "@/lib/format";
 import { isOpen24Hours } from "@/lib/hours";
 import { useI18n } from "@/lib/i18n";
+import { photoItemsFromPlace } from "@/lib/photos";
 import { PriceSelector, StatusToggle, TagInput } from "./FormControls";
+import PhotoPicker from "./PhotoPicker";
 import { RatingInput } from "./Rating";
 
 export const EMPTY_VALUES = {
@@ -24,6 +26,8 @@ export const EMPTY_VALUES = {
   closes_at: "",
   tags: [],
   notes: "",
+  // Photo list for PhotoPicker; uploaded after the place is saved, never part of the place body.
+  photos: [],
 };
 
 export function valuesFromPlace(place) {
@@ -39,6 +43,7 @@ export function valuesFromPlace(place) {
     closes_at: place.closes_at || "",
     tags: place.tags.map((tag) => tag.name),
     notes: place.notes || "",
+    photos: photoItemsFromPlace(place),
   };
 }
 
@@ -83,7 +88,7 @@ export function validateValues(values) {
 }
 
 /** Fields shared by "add restaurant" and "edit restaurant". */
-export default function PlaceFields({ values, onChange, errors = {}, locationHint }) {
+export default function PlaceFields({ values, onChange, errors = {}, locationHint, disabled = false }) {
   const { t } = useI18n();
   const { tags, geo, locate } = usePlaces();
   const ids = {
@@ -266,6 +271,8 @@ export default function PlaceFields({ values, onChange, errors = {}, locationHin
       ) : null}
 
       <TagInput value={values.tags} onChange={(next) => onChange({ tags: next })} suggestions={tags.map((tag) => tag.name)} />
+
+      <PhotoPicker items={values.photos} onChange={(photos) => onChange({ photos })} disabled={disabled} />
 
       <div>
         <label htmlFor={ids.notes} className="field-label">

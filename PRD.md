@@ -57,7 +57,7 @@ Prioritas P1 masuk MVP dan sudah disetujui. P2 dan P3 untuk fase berikutnya.
 | P2 | Random picker "Mau makan di mana?" | Undian dari wishlist dengan filter radius, kategori, dan harga. |
 | P2 | Koleksi / folder | Misal "Kuliner Bandung", "Tempat Nugas". |
 | P2 | PWA + Share Target | Install di HP. Di Android bisa langsung share dari app Google Maps (iOS belum mendukung Web Share Target). |
-| P2 | Upload foto | Foto makanan atau kunjungan (Supabase Storage). |
+| P2 (sudah) | Upload foto | Maksimal 5 foto per restoran, dari form tambah dan edit. Foto dikompres di browser (sisi terpanjang 1200 px, WebP), diunggah langsung ke Supabase Storage lewat signed URL dari backend. Foto pertama jadi sampul. Tanpa foto, aplikasi menampilkan foto placeholder. |
 | P3 | Share koleksi via link publik | Butuh halaman publik, jadi aturan "semua halaman wajib login" perlu ditinjau ulang saat itu. |
 | P3 | Koleksi kolaboratif | Satu list dikelola bersama. |
 | P3 | Riwayat kunjungan | Beberapa kunjungan per restoran. |
@@ -121,9 +121,9 @@ Pilihannya PostgreSQL di Supabase, sama dengan SmartHub:
 - Konkurensi dan integritasnya aman untuk banyak user sekaligus.
 - PostGIS tersedia untuk query radius di P2.
 - Managed, ada backup dan free tier.
-- Supabase Storage bisa dipakai untuk foto nanti.
+- Supabase Storage dipakai untuk foto restoran: bucket publik `place-photos` dengan nama file acak, batas 1,5 MB per file, hanya JPEG/PNG/WebP. Kuota gratis 1 GB, cukup untuk sekitar 4000 foto hasil kompresi. Browser tidak punya sesi Supabase (login memakai JWT Flask), jadi backend memegang `SUPABASE_SERVICE_ROLE_KEY` dan hanya membagikan signed upload URL untuk satu path.
 
-Supabase hanya dipakai sebagai database Postgres. Auth tetap di Flask.
+Supabase dipakai sebagai database Postgres dan Storage (foto). Auth tetap di Flask.
 
 ### 6.4 Infrastruktur & Deployment
 
@@ -196,7 +196,8 @@ tags
 saved_place_tags
   saved_place_id (FK) | tag_id (FK) | PK (saved_place_id, tag_id)
 
--- Fase berikutnya: collections, collection_items, visits, photos
+-- Fase berikutnya: collections, collection_items, visits
+-- Foto: tabel place_photos ada di db/migrations/003_place_photos.sql (file ada di Supabase Storage, tabel hanya menyimpan path)
 ```
 
 Login dengan password ditolak dengan pesan yang jelas untuk akun yang `password`-nya NULL (user Google). Ini memperbaiki bug yang ada di SmartHub.
@@ -268,7 +269,7 @@ Mockup ada di `design/`. Panduan warna, tipografi, dan komponen ada di `DESIGN.m
 | M3: Peta | Leaflet, marker per status, cluster, popup, lokasi saya |
 | M4: List & detail | Search, filter, sort, detail/edit, tag, rating, catatan, duplikat |
 | M5: Polish & deploy | Empty, error, dan loading state, cek ID/EN, responsif, deploy |
-| Berikutnya | P2: radius "Dekat saya", random picker, koleksi, PWA share target, foto |
+| Berikutnya | P2: radius "Dekat saya", random picker, koleksi, PWA share target |
 
 ## 14. Kriteria Sukses MVP
 
@@ -281,18 +282,5 @@ Mockup ada di `design/`. Panduan warna, tipografi, dan komponen ada di `DESIGN.m
 
 Saran Next
 - Warna Diperbaiki
-- Tambahin Detail Seperti Jam Buka dan yang lainnya di detail
-- Hapus tombol edit yang ada dibawah di halaman detail, tambahain tombol edit atau pensil di sebelah kanan nama restaurant untuk edit nama, rating, dan harga
-- Tombol edit yang di notes ntuk edit noted, tanggal visited dan tags
-- Buat modal aja jangan form 
 - Tambah filter di list untuk restorant yang masih buka sekarang, ambil api jam sekarang lalu cari restorant yang masih buka di jam sekarang
-
-
-- Untuk tampilan mobile, buat list nya di bawah, jadi bisa ditarik ke atas untuk tampilin list, lalu saat di klik salaha satu restaurant, langsung masuk ke detailnya aja, miripin kaya google map di hp
-
 - Buat sidebarnya bisa di tutup, lalu kalo mode mobile buat burger
-
-- Untuk side detail, buat designnya mirip google maps web aja, jadi di atasnya ada
-rating harga
-teru sibawah alamat dan status buka - jam buka jam tutup
-lalu dibawahnya lagi ada harga per person

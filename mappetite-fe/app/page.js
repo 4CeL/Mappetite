@@ -300,15 +300,6 @@ function DetailPanel({ place, onClose, onDelete }) {
             </div>
           ) : null}
 
-          <div className="flex items-start gap-2.5">
-            <CalendarDays className="size-4 text-[#D96B43] shrink-0 mt-0.5" />
-            <p className="text-xs text-ink-700">
-              {place.status === "visited" && place.visited_at
-                ? t("place.visitedOnDate", { date: formatDate(place.visited_at) })
-                : t("place.addedOnDate", { date: formatDate(place.created_at) })}
-            </p>
-          </div>
-
           {place.price_level ? (
             <div className="flex items-start gap-2.5">
               <Wallet className="size-4 text-[#D96B43] shrink-0 mt-0.5" />
