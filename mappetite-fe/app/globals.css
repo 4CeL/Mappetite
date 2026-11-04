@@ -47,6 +47,16 @@
   --font-sans: var(--font-jakarta), "Plus Jakarta Sans", "Segoe UI", system-ui, sans-serif;
 }
 
+/* Height of the phone's bottom tab bar (0 on desktop). Pages subtract it from their own height. */
+:root {
+  --mp-tabbar-h: 0px;
+}
+@media (max-width: 1023px) {
+  :root {
+    --mp-tabbar-h: calc(4rem + env(safe-area-inset-bottom));
+  }
+}
+
 @layer base {
   html {
     -webkit-tap-highlight-color: transparent;
@@ -166,6 +176,13 @@
   .mp-map .leaflet-bottom {
     bottom: var(--mp-attr-bottom, 0px);
     transition: bottom 150ms ease;
+  }
+}
+
+/* Phone: the map's zoom/locate buttons are hidden while the bottom sheet is fully open (see BottomSheet). */
+@media (max-width: 1023px) {
+  [data-sheet-full] .mp-map-controls {
+    display: none;
   }
 }
 

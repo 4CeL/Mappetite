@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import {
   Bookmark,
@@ -137,7 +137,7 @@ function PlaceDetail() {
   const photoUrl = place ? getFoodPhoto(place) : null;
 
   return (
-    <div className="min-h-screen bg-[#FAF8F3] text-ink-900 flex flex-col lg:flex-row">
+    <div className="min-h-[calc(100dvh-var(--mp-tabbar-h))] bg-[#FAF8F3] text-ink-900 flex flex-col lg:flex-row">
       <AppSidebar
         counts={counts}
         activeStatus={activeStatus}
@@ -145,7 +145,7 @@ function PlaceDetail() {
         className="hidden lg:flex h-screen sticky top-0"
       />
 
-      <div className="flex-1 min-w-0 flex flex-col h-screen">
+      <div className="flex-1 min-w-0 flex flex-col h-[calc(100dvh-var(--mp-tabbar-h))]">
         <TopSearchBar
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}

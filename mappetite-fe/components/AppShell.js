@@ -78,42 +78,44 @@ function DesktopHeader({ path }) {
   );
 }
 
-function BottomNav({ path }) {
+/** Phone tab bar: Explore (map) · Add · List. Profile and logout live in the top bar's profile menu. */
+function MobileTabBar({ path }) {
   const { t } = useI18n();
-  const items = [
-    { href: "/", label: t("nav.map"), Icon: MapIcon },
-    { href: "/list/", label: t("nav.list"), Icon: List },
-    { href: "/places/new/", label: t("nav.add"), Icon: Plus, primary: true },
-    { href: "/settings/", label: t("nav.profile"), Icon: User },
-  ];
+  const { openAdd } = usePlaces();
+
+  const tab = (href, label, Icon) => {
+    const active = normalize(href) === path;
+    return (
+      <Link
+        href={href}
+        aria-current={active ? "page" : undefined}
+        className={`flex flex-col items-center justify-center gap-1 text-[11px] ${
+          active ? "font-bold text-primary-800" : "font-medium text-ink-600"
+        }`}
+      >
+        <Icon className={`size-5 ${active ? "text-primary-700" : ""}`} aria-hidden="true" />
+        {label}
+      </Link>
+    );
+  };
 
   return (
     <nav
       aria-label={t("nav.main")}
-      className="fixed inset-x-0 bottom-0 z-[1000] grid h-[4.5rem] grid-cols-4 border-t border-line bg-white pb-[env(safe-area-inset-bottom)] lg:hidden"
+      className="fixed inset-x-0 bottom-0 z-[1000] grid h-[var(--mp-tabbar-h)] grid-cols-3 border-t border-line bg-white pb-[env(safe-area-inset-bottom)] lg:hidden"
     >
-      {items.map(({ href, label, Icon, primary }) => {
-        const active = normalize(href) === path;
-        return (
-          <Link
-            key={href}
-            href={href}
-            aria-current={active ? "page" : undefined}
-            className={`flex flex-col items-center justify-center gap-1 text-[11px] ${
-              active ? "font-bold text-primary-800" : "text-ink-600"
-            }`}
-          >
-            {primary ? (
-              <span className="-mt-1 flex size-10 items-center justify-center rounded-full bg-primary-700 text-white shadow-card">
-                <Icon className="size-5" aria-hidden="true" />
-              </span>
-            ) : (
-              <Icon className={`size-5 ${active ? "text-primary-700" : ""}`} aria-hidden="true" />
-            )}
-            {label}
-          </Link>
-        );
-      })}
+      {tab("/", t("nav.explore"), MapIcon)}
+      <button
+        type="button"
+        onClick={openAdd}
+        className="flex flex-col items-center justify-center gap-1 text-[11px] font-medium text-ink-600"
+      >
+        <span className="-mt-3 flex size-12 items-center justify-center rounded-full bg-primary-700 text-white shadow-pop ring-4 ring-white">
+          <Plus className="size-6" aria-hidden="true" />
+        </span>
+        {t("nav.add")}
+      </button>
+      {tab("/list/", t("nav.list"), List)}
     </nav>
   );
 }
@@ -152,10 +154,11 @@ export default function AppShell({ children }) {
         {t("nav.skipToContent")}
       </a>
       {!isCustomLayout && <DesktopHeader path={path} />}
-      <main id="main" className={`flex-1 ${isCustomLayout ? "pb-16 lg:pb-0" : "pb-[4.5rem] lg:pb-0"}`}>
+      {/* The tab bar is fixed, so leave room for it below the page (the variable is 0 on desktop). */}
+      <main id="main" className="flex-1 pb-[var(--mp-tabbar-h)]">
         {children}
       </main>
-      {!isCustomLayout && <BottomNav path={path} />}
+      <MobileTabBar path={path} />
       <AddPlaceModal />
       <EditPlaceModal />
     </div>

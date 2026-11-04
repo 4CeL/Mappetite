@@ -1,4 +1,4 @@
-"use client";
+﻿﻿﻿"use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
@@ -28,6 +28,7 @@ import {
 import AppSidebar from "@/components/layout/AppSidebar";
 import TopSearchBar from "@/components/layout/TopSearchBar";
 import { MapView } from "@/components/map";
+import MobilePlaceSheets from "@/components/places/MobilePlaceSheets";
 import EmptyState from "@/components/places/EmptyState";
 import PlaceThumb from "@/components/places/PlaceThumb";
 import { PlaceCardSkeleton } from "@/components/places/PlaceCard";
@@ -425,6 +426,8 @@ export default function HomePage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeStatus, setActiveStatus] = useState("all");
   const [panelOpen, setPanelOpen] = useState(true);
+  // How much of the map the phone sheet covers (px); the map keeps the selected restaurant above it.
+  const [sheetVisible, setSheetVisible] = useState(0);
 
   const counts = useMemo(() => {
     const wishlist = places.filter((p) => p.status === "wishlist").length;
@@ -483,7 +486,7 @@ export default function HomePage() {
 
   return (
     // Tambahkan overflow-x-hidden di container utama
-    <div className="fixed inset-0 w-full h-[100dvh] bg-[#FAF8F3] text-ink-900 flex flex-col lg:flex-row overflow-hidden">
+    <div className="fixed inset-x-0 top-0 bottom-[var(--mp-tabbar-h)] lg:bottom-0 w-full bg-[#FAF8F3] text-ink-900 flex flex-col lg:flex-row overflow-hidden">
       
       <AppSidebar
         counts={counts}
@@ -509,10 +512,11 @@ export default function HomePage() {
               geo={geo}
               onLocate={locate}
               renderPopup={renderPopup}
-              controlsClassName={`bottom-32 right-4 w-fit lg:bottom-6 lg:right-6 ${
+              controlsClassName={`max-lg:bottom-[calc(var(--mp-sheet-visible,5rem)_+_0.75rem)] right-4 w-fit lg:bottom-6 lg:right-6 ${
                 selectedPlace ? "xl:right-[22rem]" : ""
               }`}
-              attributionOffset="0px"
+              attributionOffset="var(--mp-sheet-visible, 0px)"
+              bottomInset={sheetVisible}
             />
           </div>
 
@@ -598,350 +602,25 @@ export default function HomePage() {
           )}
 
           {/* === MOBILE UI === */}
-          {/* Tambahkan pointer-events-none agar map tetap bisa di-klik di area kosong */}
-          <div className="lg:hidden absolute inset-0 pointer-events-none z-10 flex flex-col justify-end">
-            <div className="absolute top-4 inset-x-4 pointer-events-auto z-20">
+          <div className="pointer-events-none absolute inset-x-4 top-4 z-20 lg:hidden">
+            <div className="pointer-events-auto">
               <TopSearchBar
                 searchQuery={searchQuery}
                 onSearchChange={setSearchQuery}
                 className="rounded-full shadow-lg border-0 bg-white"
               />
             </div>
-
-            <MobileBottomSheet
-              places={visiblePlaces}
-              selected={selectedPlace}
-              counts={counts}
-              status={status}
-              onSelect={onSelect}
-              onClose={() => setSelectedId(null)}
-              onAdd={openAdd}
-              onReload={reload}
-            />
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/* ── Mobile Bottom Sheet (Fix Interaksi & Layout) ────────────────── */
-function MobileBottomSheet({ places, selected, counts, status, onSelect, onClose, onAdd, onReload }) {
-  const { t, formatNumber, formatDate } = useI18n();
-  const { openEdit } = usePlaces();
-  const [isExpanded, setIsExpanded] = useState(true);
-  const [showFullList, setShowFullList] = useState(false);
-  
-  const [startY, setStartY] = useState(0);
-  const [currentY, setCurrentY] = useState(0);
-  const [isDragging, setIsDragging] = useState(false);
-  const [imgError, setImgError] = useState(false);
-
-  // Open the sheet and retry the photo whenever a *different* restaurant gets selected.
-  // Done while rendering (React's "adjust state on prop change" pattern) instead of in an
-  // effect, and keyed by id so a data refresh of the same restaurant doesn't re-open the sheet.
-  const selectedId = selected?.id ?? null;
-  const [trackedSelectedId, setTrackedSelectedId] = useState(selectedId);
-  if (selectedId !== trackedSelectedId) {
-    setTrackedSelectedId(selectedId);
-    if (selectedId) {
-      setIsExpanded(true);
-      setImgError(false);
-    }
-  }
-
-  const handleTouchStart = (e) => {
-    setIsDragging(true);
-    setStartY(e.touches[0].clientY);
-    setCurrentY(e.touches[0].clientY);
-  };
-
-  const handleTouchMove = (e) => {
-    if (!isDragging) return;
-    const y = e.touches[0].clientY;
-    setCurrentY(y);
-  };
-
-  const handleTouchEnd = () => {
-    if (!isDragging) return;
-    setIsDragging(false);
-    
-    const deltaY = currentY - startY;
-    
-    if (deltaY < -50) {
-      setIsExpanded(true);
-    } else if (deltaY > 50) {
-      setIsExpanded(false);
-      if (selected) onClose();
-      setShowFullList(false);
-    }
-  };
-
-  let translateStyle = {};
-  if (isDragging) {
-    const deltaY = currentY - startY;
-    translateStyle = {
-      transform: `translateY(calc(${isExpanded ? '0px' : 'calc(100% - 4.6rem)'} + ${deltaY}px))`,
-      transition: 'none'
-    };
-  }
-
-  return (
-    // pointer-events-none pada wrapper fixed agar area atas (peta) tembus klik
-    <div className="pointer-events-none fixed bottom-0 left-0 w-full z-50 flex justify-center">
-      <div
-        style={translateStyle}
-        // pointer-events-auto dikembalikan ke dalam panel agar kontennya bisa di-scroll & diklik
-        className={`pointer-events-auto w-full bg-[#FAF8F3] text-ink-900 rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.1)] flex flex-col border-t border-[#EAE5D9] transition-transform duration-300 ease-out h-[85dvh] overflow-hidden ${
-          isExpanded ? "translate-y-0" : "translate-y-[calc(100%-4.6rem)]"
-        }`}
-      >
-        {/* Header (Tinggi 4.6rem) */}
-        <div 
-          className="h-[4.6rem] shrink-0 bg-[#FAF8F3] z-20 cursor-grab active:cursor-grabbing flex flex-col justify-center" 
-          onClick={() => setIsExpanded((v) => !v)}
-          onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
-        >
-          <div className="w-full flex justify-center pt-2 pb-1">
-            <span className="h-1.5 w-12 rounded-full bg-stone-300" aria-hidden="true" />
           </div>
 
-          <div className="px-4 pb-3 flex items-center justify-between">
-            <p className="flex items-center gap-2 text-sm font-bold text-ink-900">
-              <MapPin className="size-4 text-[#485635]" aria-hidden="true" />
-              {status === "loading" ? t("app.loading") : `${places.length} restaurants`}
-            </p>
-            <div className="flex items-center gap-1.5">
-              <button
-                type="button"
-                onClick={(e) => { e.stopPropagation(); onAdd(); }}
-                className="inline-flex items-center gap-1 rounded-full bg-[#485635] text-white px-3 py-1.5 text-xs font-bold shadow-sm transition-colors hover:bg-[#3B472A]"
-              >
-                <Plus className="size-3.5" />
-                Add
-              </button>
-              <button 
-                onClick={(e) => { 
-                  e.stopPropagation(); 
-                  setIsExpanded(true); 
-                  setShowFullList((v) => !v); 
-                  if(selected) onClose(); 
-                }}
-                className="inline-flex items-center gap-1 rounded-full border border-[#EAE5D9] bg-white text-ink-800 px-3 py-1.5 text-xs font-bold shadow-sm"
-              >
-                {showFullList ? "Maps" : "List"}
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Content Area - overflow-y-auto untuk list */}
-        <div className="flex-1 overflow-y-auto overflow-x-hidden hide-scrollbar relative z-10 pb-8">
-           {selected ? (
-              <div className="flex flex-col">
-                 <div className="relative w-full h-48 bg-stone-200 shrink-0 mb-4">
-                    {!imgError ? (
-                      <img
-                        src={getFoodPhoto(selected)}
-                        alt={selected.name}
-                        onError={() => setImgError(true)}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <PlaceThumb place={selected} className="w-full h-full rounded-none" iconClassName="size-12" />
-                    )}
-                    <div className="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-black/50 to-transparent pointer-events-none" />
-                    <button
-                      onClick={() => { onClose(); setIsExpanded(true); }}
-                      className="absolute top-3 right-3 size-9 flex items-center justify-center rounded-full bg-white/90 backdrop-blur-sm shadow-sm text-ink-700 hover:bg-white transition-colors"
-                    >
-                      <X className="size-5" />
-                    </button>
-                 </div>
-
-                 <div className="px-4">
-                    <div className="mb-4">
-                      <h2 className="text-xl font-extrabold text-ink-900 leading-tight">{selected.name}</h2>
-                      {(selected.rating != null || selected.price_level) && (
-                        <div className="flex items-center gap-1.5 mt-1 flex-wrap text-sm">
-                          {selected.rating != null && (
-                            <span className="flex items-center gap-1">
-                              <span className="font-bold text-ink-800">{formatNumber(selected.rating, 1)}</span>
-                              <StarRating value={selected.rating} size="size-3.5" />
-                            </span>
-                          )}
-                          {selected.rating != null && selected.price_level ? <span className="text-ink-300">·</span> : null}
-                          {selected.price_level ? (
-                            <span className="font-semibold text-ink-700">{t(`price.${selected.price_level}`)}</span>
-                          ) : null}
-                        </div>
-                      )}
-                      <p className="text-sm text-ink-500 mt-1">
-                        {selected.tags?.[0]?.name || "Restoran"}
-                      </p>
-                    </div>
-                    
-                    <div className="flex items-center gap-3 mb-5">
-                       <a
-                        href={openInMapsUrl(selected)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex-1 flex items-center justify-center gap-2 bg-[#485635] text-white py-3 rounded-xl text-sm font-bold shadow-md hover:bg-[#3B472A]"
-                      >
-                        <Navigation className="size-4" /> Rute
-                      </a>
-                      <a
-                        href={`/places/detail/?id=${encodeURIComponent(selected.id)}`}
-                        className="flex-1 flex items-center justify-center gap-2 bg-white border border-[#EAE5D9] text-ink-900 py-3 rounded-xl text-sm font-bold hover:bg-stone-50"
-                      >
-                        <ArrowRight className="size-4" /> Detail
-                      </a>
-                      <button
-                        type="button"
-                        onClick={() => openEdit(selected.id)}
-                        className="flex size-12 shrink-0 items-center justify-center rounded-xl border border-[#EAE5D9] bg-white text-ink-700 hover:bg-stone-50"
-                        aria-label={t("place.edit")}
-                      >
-                        <Pencil className="size-4" aria-hidden="true" />
-                      </button>                    </div>
-
-                    <div className="flex flex-col gap-3 text-sm text-ink-700">
-                      {selected.address && (
-                        <div className="flex items-start gap-3">
-                           <MapPin className="size-5 shrink-0 text-[#D96B43] mt-0.5" />
-                           <p className="leading-relaxed">{selected.address}</p>
-                        </div>
-                      )}
-                      {hasHours(selected) ? (
-                        <div className="flex items-start gap-3">
-                           <Clock className="size-5 shrink-0 text-[#D96B43] mt-0.5" />
-                           <OpeningHours place={selected} />
-                        </div>
-                      ) : null}
-                      <div className="flex items-start gap-3">
-                         <CalendarDays className="size-5 shrink-0 text-[#D96B43] mt-0.5" />
-                         <p>
-                           {selected.status === "visited" && selected.visited_at
-                             ? t("place.visitedOnDate", { date: formatDate(selected.visited_at) })
-                             : t("place.addedOnDate", { date: formatDate(selected.created_at) })}
-                         </p>
-                      </div>
-                      {selected.price_level ? (
-                        <div className="flex items-start gap-3">
-                           <Wallet className="size-5 shrink-0 text-[#D96B43] mt-0.5" />
-                           <p className="font-semibold text-ink-900">
-                             {t("price.perPerson", { price: t(`price.full.${selected.price_level}`) })}
-                           </p>
-                        </div>
-                      ) : null}
-                    </div>
-                 </div>
-              </div>
-           ) : showFullList ? (
-              <div className="flex flex-col gap-2 pt-2 px-3">
-                 {places.map((place) => (
-                    <button
-                      key={place.id}
-                      onClick={() => onSelect(place.id)}
-                      className="flex items-center gap-3 w-full p-2 rounded-2xl bg-white border border-[#EAE5D9] hover:bg-[#F2EFE8] text-left transition-colors shadow-sm"
-                    >
-                      <img src={getFoodPhoto(place)} alt="" className="size-16 rounded-xl object-cover" />
-                      <div className="flex-1 min-w-0">
-                        <h4 className="text-sm font-bold text-ink-900 truncate">{place.name}</h4>
-                        <p className="text-[11px] text-ink-500 truncate">{shortArea(place.address)}</p>
-                        <div className="flex items-center gap-1 mt-1 text-[11px] text-ink-700">
-                           <Star className="size-3 text-amber-500 fill-current" />
-                           {Number(place.rating || 4.5).toFixed(1)} • {place.distanceKm ? `${place.distanceKm.toFixed(1)} km` : "Dekat"}
-                        </div>
-                      </div>
-                    </button>
-                 ))}
-              </div>
-           ) : (
-             <div className="pt-1">
-                {/* 
-                  PERBAIKAN: 
-                  Padding bawah dihilangkan agar space kosong tidak muncul.
-                  Kartu tinggi otomatis (min-h-[20rem]).
-                */}
-                <div 
-                  className="flex overflow-x-auto snap-x snap-mandatory gap-3 px-4 hide-scrollbar items-stretch"
-                  style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-                >
-                  {status === "loading" ? (
-                    <div className="w-[300px] h-[350px] bg-stone-200 rounded-3xl animate-pulse shrink-0 snap-center"></div>
-                  ) : status === "error" ? (
-                    <div className="w-full"><EmptyState kind="error" onRetry={onReload} /></div>
-                  ) : places.length === 0 ? (
-                    <div className="w-full"><EmptyState kind="empty" /></div>
-                  ) : (
-                    places.map((place) => (
-                      <div
-                        key={place.id}
-                        onClick={() => onSelect(place.id)}
-                        // Menambah tinggi kartu secara natural
-                        className="w-[300px] min-h-[20rem] shrink-0 snap-center bg-white border border-[#EAE5D9] rounded-3xl overflow-hidden shadow-sm flex flex-col text-left transition-transform active:scale-[0.98] cursor-pointer"
-                      >
-                        <div className="relative h-48 w-full bg-stone-100 shrink-0">
-                           <img
-                              src={getFoodPhoto(place)}
-                              alt={place.name}
-                              className="w-full h-full object-cover"
-                           />
-                           <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/40 to-transparent pointer-events-none" />
-                           <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-md text-ink-900 text-[11px] font-semibold px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-sm">
-                              📍 {place.distanceKm ? `${place.distanceKm.toFixed(1)} km` : "Dekat"}
-                           </div>
-                        </div>
-
-                        <div className="p-5 flex-1 flex flex-col bg-white">
-                          <div className="flex items-center justify-between mb-1.5">
-                             <h3 className="text-lg font-extrabold text-ink-900 truncate leading-tight">{place.name}</h3>
-                          </div>
-                          
-                          <p className="text-[13px] text-ink-600 flex items-center gap-1.5">
-                             <span className="font-bold text-ink-900">{Number(place.rating || 4.5).toFixed(1)}</span>
-                             <Star className="size-3.5 text-[#F59E0B] fill-current" />
-                             <span className="text-ink-400">({place.google_maps_rating_count || "54"})</span>
-                             · {place.tags?.[0]?.name || "Restoran"}
-                          </p>
-
-                          {hasHours(place) || place.distanceKm ? (
-                            <p className="text-[13px] mt-2 flex flex-wrap items-center gap-x-1.5">
-                               {hasHours(place) ? <OpeningHours place={place} /> : null}
-                               {hasHours(place) && place.distanceKm ? <span className="text-ink-300">·</span> : null}
-                               {place.distanceKm ? (
-                                 <span className="text-ink-500">{`${place.distanceKm.toFixed(1)} km`}</span>
-                               ) : null}
-                            </p>
-                          ) : null}
-
-                          <p className="text-[12px] text-ink-400 mt-2.5 truncate">
-                             {shortArea(place.address) || "Area"} : Trending
-                          </p>
-                          
-                          <div className="mt-auto" />
-                        </div>
-                      </div>
-                    ))
-                  )}
-                </div>
-                
-                {!status && places.length > 0 && (
-                  <div className="px-4 mt-4 mb-2">
-                    <button 
-                      onClick={() => setShowFullList(true)}
-                      className="w-full py-3.5 bg-white border border-[#EAE5D9] rounded-full text-[13px] font-bold text-ink-800 hover:bg-stone-50 transition-colors flex items-center justify-center gap-1 shadow-sm"
-                    >
-                      See all Trending <ChevronRight className="size-4" />
-                    </button>
-                  </div>
-                )}
-             </div>
-           )}
-        </div>
+          <MobilePlaceSheets
+            places={visiblePlaces}
+            selected={selectedPlace}
+            status={status}
+            onSelect={onSelect}
+            onClose={() => setSelectedId(null)}
+            onReload={reload}
+            onVisibleChange={setSheetVisible}
+          />        </div>
       </div>
     </div>
   );

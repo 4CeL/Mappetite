@@ -1,4 +1,4 @@
-"use client";
+﻿﻿"use client";
 
 import { useState, useMemo } from "react";
 import {
@@ -18,13 +18,16 @@ import RestaurantFiltersSidebar from "@/components/places/RestaurantFiltersSideb
 import RestaurantListCard from "@/components/places/RestaurantListCard";
 import { PlaceCardSkeleton } from "@/components/places/PlaceCard";
 import EmptyState from "@/components/places/EmptyState";
+import MobileListMap from "@/components/places/MobileListMap";
 import { usePlaces } from "@/components/providers/PlacesProvider";
 import { api } from "@/lib/api";
 import { sortPlaces } from "@/lib/filters";
 import { useI18n } from "@/lib/i18n";
+import { useIsMobile } from "@/lib/media";
 
 export default function ListPage() {
   const { t } = useI18n();
+  const isMobile = useIsMobile();
   const {
     status,
     places,
@@ -197,8 +200,61 @@ export default function ListPage() {
     );
   }
 
+  const filterDrawer = mobileFilterOpen ? (
+        <div className="fixed inset-0 z-[1100] xl:hidden flex justify-end">
+          <div
+            className="fixed inset-0 bg-black/30 backdrop-blur-xs transition-opacity"
+            onClick={() => setMobileFilterOpen(false)}
+          />
+          <div className="relative w-80 max-w-[85vw] bg-[#FAF8F3] h-full overflow-y-auto p-6 shadow-2xl z-10 flex flex-col justify-between">
+            <button
+              type="button"
+              onClick={() => setMobileFilterOpen(false)}
+              className="absolute top-4 right-4 p-1.5 rounded-full text-ink-500 hover:bg-stone-200"
+              aria-label="Tutup Filter"
+            >
+              <X className="size-5" />
+            </button>
+            <RestaurantFiltersSidebar
+              tags={tags}
+              selectedTagIds={selectedTagIds}
+              onTagToggle={handleTagToggle}
+              locations={locationOptions}
+              selectedLocations={selectedLocations}
+              onLocationToggle={handleLocationToggle}
+              onClearAll={handleClearAll}
+            />
+          </div>
+        </div>
+  ) : null;
+
+  // Phone: the map with the list in a sheet on top of it (see MobileListMap).
+  if (isMobile) {
+    return (
+      <>
+        <MobileListMap
+          places={visiblePlaces}
+          status={status}
+          onReload={reload}
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          list={{
+            counts,
+            activeStatus,
+            onStatusChange: setActiveStatus,
+            sortBy,
+            onSortChange: handleSortChange,
+            filtersActive: selectedTagIds.length + selectedLocations.length > 0,
+            onOpenFilters: () => setMobileFilterOpen(true),
+            onReset: handleClearAll,
+          }}
+        />
+        {filterDrawer}
+      </>
+    );
+  }
   return (
-    <div className="min-h-screen bg-[#FAF8F3] text-ink-900 flex flex-col lg:flex-row">
+    <div className="min-h-[calc(100dvh-var(--mp-tabbar-h))] bg-[#FAF8F3] text-ink-900 flex flex-col lg:flex-row">
       {/* 1. Left Sidebar (matches mockup) */}
       <AppSidebar
         counts={counts}
@@ -208,7 +264,7 @@ export default function ListPage() {
       />
 
       {/* 2. Main Area (Right of Left Sidebar) */}
-      <div className="flex-1 min-w-0 flex flex-col min-h-screen">
+      <div className="flex-1 min-w-0 flex flex-col min-h-[calc(100dvh-var(--mp-tabbar-h))]">
         {/* Top Header / Search Bar: spans full width across Center & Right */}
         <TopSearchBar
           searchQuery={searchQuery}
@@ -373,34 +429,7 @@ export default function ListPage() {
         </div>
       </div>
 
-      {/* Mobile Slide-Over Filter Drawer */}
-      {mobileFilterOpen && (
-        <div className="fixed inset-0 z-50 xl:hidden flex justify-end">
-          <div
-            className="fixed inset-0 bg-black/30 backdrop-blur-xs transition-opacity"
-            onClick={() => setMobileFilterOpen(false)}
-          />
-          <div className="relative w-80 max-w-[85vw] bg-[#FAF8F3] h-full overflow-y-auto p-6 shadow-2xl z-10 flex flex-col justify-between">
-            <button
-              type="button"
-              onClick={() => setMobileFilterOpen(false)}
-              className="absolute top-4 right-4 p-1.5 rounded-full text-ink-500 hover:bg-stone-200"
-              aria-label="Tutup Filter"
-            >
-              <X className="size-5" />
-            </button>
-            <RestaurantFiltersSidebar
-              tags={tags}
-              selectedTagIds={selectedTagIds}
-              onTagToggle={handleTagToggle}
-              locations={locationOptions}
-              selectedLocations={selectedLocations}
-              onLocationToggle={handleLocationToggle}
-              onClearAll={handleClearAll}
-            />
-          </div>
-        </div>
-      )}
+      {filterDrawer}
     </div>
   );
 }

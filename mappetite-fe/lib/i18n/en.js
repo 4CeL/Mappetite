@@ -1,4 +1,4 @@
-const en = {
+﻿const en = {
   "app.name": "Mappetite",
   "app.tagline": "Save the places you want to eat at and see them all on a map.",
   "app.loading": "Loading…",
@@ -35,6 +35,12 @@ const en = {
   "auth.loginLink": "Log in",
   "auth.logout": "Log out",
   "auth.googleUnavailable": "Google sign-in is not configured yet.",
+  "nav.explore": "Explore",
+  "place.route": "Route",
+  "sheet.expand": "Expand panel",
+  "sheet.collapse": "Collapse panel",
+  "sheet.closeDetail": "Close details",
+  "sheet.noRestaurants": "No restaurants yet",
   "auth.heroTitle": "Never forget a place you want to try.",
   "auth.heroTitleAccent": "want to try",
   "auth.heroSubtitle": "Paste a Google Maps link and the restaurant becomes a pin on your own map.",

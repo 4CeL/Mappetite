@@ -30,7 +30,7 @@ function NewPlaceContent() {
           initialUrl={initialUrl}
           onSaved={onSaved}
           onCancel={() => router.back()}
-          actionsClassName="bottom-[4.5rem] lg:bottom-0"
+          actionsClassName="bottom-[var(--mp-tabbar-h)] lg:bottom-0"
         />
       </div>
     </div>

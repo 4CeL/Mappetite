@@ -1,4 +1,4 @@
-const id = {
+﻿const id = {
   "app.name": "Mappetite",
   "app.tagline": "Simpan tempat makan incaranmu, lihat semuanya di peta.",
   "app.loading": "Memuat…",
@@ -35,6 +35,12 @@ const id = {
   "auth.loginLink": "Masuk",
   "auth.logout": "Keluar",
   "auth.googleUnavailable": "Login Google belum dikonfigurasi.",
+  "nav.explore": "Jelajah",
+  "place.route": "Rute",
+  "sheet.expand": "Perluas panel",
+  "sheet.collapse": "Ciutkan panel",
+  "sheet.closeDetail": "Tutup detail",
+  "sheet.noRestaurants": "Belum ada restoran",
   "auth.heroTitle": "Jangan lupa lagi tempat makan yang pengin kamu coba.",
   "auth.heroTitleAccent": "pengin kamu coba",
   "auth.heroSubtitle": "Tempel link Google Maps, dan restorannya langsung jadi pin di petamu sendiri.",

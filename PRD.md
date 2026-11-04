@@ -283,4 +283,10 @@ Mockup ada di `design/`. Panduan warna, tipografi, dan komponen ada di `DESIGN.m
 Saran Next
 - Warna Diperbaiki
 - Tambah filter di list untuk restorant yang masih buka sekarang, ambil api jam sekarang lalu cari restorant yang masih buka di jam sekarang
-- Buat sidebarnya bisa di tutup, lalu kalo mode mobile buat burger
+
+- Unutuk tampilan mobile, tampilin tab menu dibawah, ada 3 menu yaitu : 
+1. Menu explore : Tampilan map lalu tetep ada card yang bisa di drag ke atas yang berisi card restaurant yang di slide ke samping
+2. Tombol add  : Untuk add restaurant
+3. Menu list : tampilan list restaurant, kalau di klik salah satu restaurant, map akan otomatis mengarahkan ke lokasinya, dan ada detail restaurant dari card dibawah. (Saat pertama di klik, card hanya terbuka setengah agar lokasi map masih keliatan, lalu bisa di drag ke atas untuk melihat detail secara lengkap). Ada tombol silang nya juga untuk menutup, saat dipencet maka balik ke halaman list
+
+Untuk login dan register page bisa buat lebih mmodern, jadi mungkin bikin 2 card rounded kanan kiri, sebelah kiri untuk gambar lalu sebelah kanan baaru form nya

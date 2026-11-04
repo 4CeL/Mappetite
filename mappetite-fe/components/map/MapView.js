@@ -12,6 +12,7 @@ import { MapContainer, TileLayer } from "react-leaflet";
 
 import { DEFAULT_CENTER, DEFAULT_ZOOM, MAP_TILE_ATTRIBUTION, MAP_TILE_URL } from "@/lib/config";
 import { useI18n } from "@/lib/i18n";
+import { isMobileViewport } from "@/lib/media";
 import { clusterIcon, placeIcon, userLocationIcon } from "./icons";
 
 const LABEL_MIN_ZOOM = 14;
@@ -32,6 +33,9 @@ export default function MapView({
   controlsClassName = "bottom-28 lg:bottom-6",
   // Mobile only: lifts Leaflet's bottom controls (OSM attribution) above overlays like the bottom sheet.
   attributionOffset = "0px",
+  // Mobile only: height in px of the bottom sheet covering the map. A selected restaurant is kept centred
+  // in the part of the map that is still visible above it.
+  bottomInset = 0,
 }) {
   const { t } = useI18n();
   const [map, setMap] = useState(null);
@@ -41,6 +45,34 @@ export default function MapView({
   const selectedRef = useRef(null);
   const fittedRef = useRef(false);
   const pendingLocateRef = useRef(false);
+  const insetRef = useRef(bottomInset);
+  const lastInsetRef = useRef(bottomInset);
+
+  useEffect(() => {
+    insetRef.current = bottomInset;
+  }, [bottomInset]);
+
+  // Bring a restaurant into view: centred above the bottom sheet on phones, nudged inside the edges on desktop.
+  const focusMarker = useCallback(
+    (latLng) => {
+      if (!map) return;
+      const inset = insetRef.current;
+      if (inset > 0 && isMobileViewport()) {
+        const size = map.getSize();
+        const zoom = Math.max(map.getZoom(), 15);
+        const topClear = 80; // the floating search bar
+        const visibleHeight = Math.max(size.y - inset - topClear, 120);
+        const wantedY = topClear + visibleHeight / 2;
+        // The marker should sit `offset` px below the map's centre, so the centre must sit that far above it.
+        const offset = wantedY - size.y / 2;
+        const target = map.unproject(map.project(latLng, zoom).subtract([0, offset]), zoom);
+        map.flyTo(target, zoom, { duration: 0.7 });
+      } else {
+        map.panInside(latLng, { paddingTopLeft: [40, 260], paddingBottomRight: [40, 40] });
+      }
+    },
+    [map],
+  );
 
   // Cluster group lifecycle + label visibility + popup repositioning on view changes.
   useEffect(() => {
@@ -117,10 +149,16 @@ export default function MapView({
     if (!next) return;
     next.marker.setIcon(placeIcon(next.place, true));
     next.marker.setZIndexOffset(1000);
-    group.zoomToShowLayer(next.marker, () => {
-      map.panInside(next.marker.getLatLng(), { paddingTopLeft: [40, 260], paddingBottomRight: [40, 40] });
-    });
-  }, [map, selectedId, places]);
+    group.zoomToShowLayer(next.marker, () => focusMarker(next.marker.getLatLng()));
+  }, [map, selectedId, places, focusMarker]);
+
+  // The sheet moved (opened further, or dragged back down): keep the selected restaurant in the visible part.
+  useEffect(() => {
+    if (lastInsetRef.current === bottomInset) return;
+    lastInsetRef.current = bottomInset;
+    const entry = selectedId ? markersRef.current.get(selectedId) : null;
+    if (map && entry) focusMarker(entry.marker.getLatLng());
+  }, [map, selectedId, bottomInset, focusMarker]);
 
   const coords = geo?.coords ?? null;
 
@@ -180,7 +218,7 @@ export default function MapView({
         </div>
       ) : null}
 
-      <div className={`absolute right-3 z-[900] flex flex-col gap-3 transition-[bottom] lg:right-4 ${controlsClassName}`}>
+      <div className={`mp-map-controls absolute right-3 z-[900] flex flex-col gap-3 transition-[bottom] lg:right-4 ${controlsClassName}`}>
         <div className="flex flex-col overflow-hidden rounded-xl bg-white shadow-card">
           <button
             type="button"

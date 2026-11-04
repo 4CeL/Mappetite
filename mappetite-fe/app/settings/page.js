@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import {
   AlertTriangle,
@@ -398,12 +398,12 @@ export default function SettingsPage() {
   const { t } = useI18n();
 
   return (
-    <div className="min-h-screen bg-[#FAF8F3] text-ink-900 flex flex-col lg:flex-row">
+    <div className="min-h-[calc(100dvh-var(--mp-tabbar-h))] bg-[#FAF8F3] text-ink-900 flex flex-col lg:flex-row">
       {/* Left Sidebar (consistent with map + list pages) */}
       <AppSidebar className="hidden lg:flex h-screen sticky top-0" />
 
       {/* Main Area */}
-      <div className="flex-1 min-w-0 flex flex-col min-h-screen">
+      <div className="flex-1 min-w-0 flex flex-col min-h-[calc(100dvh-var(--mp-tabbar-h))]">
         {/* Top Navbar */}
         <TopSearchBar
           searchQuery=""
