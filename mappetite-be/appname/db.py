@@ -38,30 +38,71 @@ def _get_pool():
                     dsn=Config.DATABASE_URL,
                     connect_timeout=10,
                     application_name="mappetite-be",
+
+                    # TCP Keepalive
+                    keepalives=1,
+                    keepalives_idle=30,
+                    keepalives_interval=10,
+                    keepalives_count=3,
                 )
     return _pool
 
+def _is_connection_error(exc, conn):
+    if conn.closed:
+        return True
+
+    if isinstance(
+        exc,
+        (
+            psycopg2.OperationalError,
+            psycopg2.InterfaceError,
+        ),
+    ):
+        return True
+
+    # Connection-level DatabaseError biasanya tidak memiliki SQLSTATE.
+    if isinstance(exc, psycopg2.DatabaseError):
+        return exc.pgcode is None
+
+    return False
 
 @contextmanager
 def get_cursor():
-    """Yield a RealDictCursor inside a transaction (commit on success, rollback on error)."""
+    """Yield a cursor and discard broken connections from the pool."""
     pool = _get_pool()
     conn = pool.getconn()
     discard = False
+
     try:
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
             yield cur
+
         conn.commit()
+
     except Exception as exc:
-        if isinstance(exc, (psycopg2.OperationalError, psycopg2.InterfaceError)):
+        if _is_connection_error(exc, conn):
             discard = True
+
+            logger.warning(
+                "Discarding broken database connection: %s",
+                type(exc).__name__,
+            )
+
         try:
             conn.rollback()
         except psycopg2.Error:
             discard = True
+
+        if conn.closed:
+            discard = True
+
         raise
+
     finally:
-        pool.putconn(conn, close=discard or bool(conn.closed))
+        pool.putconn(
+            conn,
+            close=discard or bool(conn.closed),
+        )
 
 
 def run_db(operation):
