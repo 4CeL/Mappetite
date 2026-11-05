@@ -183,43 +183,63 @@ function PlaceRow({ place, onSelect }) {
     <button
       type="button"
       onClick={() => onSelect(place.id)}
-      className="flex w-full items-center gap-3 rounded-2xl border border-line bg-white p-2.5 text-left shadow-card transition-colors active:bg-chip"
+      className="relative flex w-full items-start gap-3 rounded-2xl border border-line bg-white p-2.5 text-left shadow-card transition-colors active:bg-chip"
     >
+      {/* Photo */}
       <div className="size-24 shrink-0 overflow-hidden rounded-xl bg-stone-100">
         <Photo place={place} iconClassName="size-8" />
       </div>
+
+      {/* Status badge — top-right corner */}
+      <div className="absolute right-3 top-3">
+        <StatusBadge status={place.status} />
+      </div>
+
+      {/* Details */}
       <div className="min-w-0 flex-1">
-        <h3 className="truncate text-[15px] font-extrabold text-ink-900">{place.name}</h3>
-        <p className="mt-0.5 flex items-center gap-1.5 text-xs text-ink-600">
+        {/* Name — with right padding so it doesn't overlap the badge */}
+        <h3 className="truncate pr-20 text-[15px] font-extrabold text-ink-900">{place.name}</h3>
+
+        {/* Row 1: Rating · Distance */}
+        <p className="mt-1.5 flex items-center gap-1 text-xs text-ink-600">
           {place.rating != null ? (
             <>
-              <Star className="size-3.5 fill-star text-star" aria-hidden="true" />
               <span className="font-bold text-ink-900">{formatNumber(place.rating, 1)}</span>
+              <Star className="size-3.5 fill-star text-star" aria-hidden="true" />
             </>
           ) : (
             <span className="text-ink-500">{t("place.notRated")}</span>
           )}
-          {tag ? (
+          {distance && (
             <>
-              <span className="text-ink-400" aria-hidden="true">·</span>
-              <span className="truncate">{tag}</span>
+              <span className="text-ink-400">·</span>
+              <span className="text-[11px] font-medium text-ink-500 mt-0.5">{distance}</span>
+            </>
+          )}
+        </p>
+
+        {/* Row 2: Tag */}
+        <div className="mt-1 flex items-center gap-1 text-xs">
+          {tag ? (
+            <p className="truncate text-ink-600">{tag}</p>
+          ) : null}
+
+          {place.price_level ? (
+            <>
+              <span className="text-ink-400">·</span>
+              <span className="shrink-0 text-ink-600 text-[11px]">
+                {t(`price.${place.price_level}`)}
+              </span>
             </>
           ) : null}
-        </p>
-        {place.address ? (
-          <p className="mt-0.5 flex items-center gap-1 text-xs text-ink-500">
-            <MapPin className="size-3 shrink-0" aria-hidden="true" />
-            <span className="truncate">{shortArea(place.address) || place.address}</span>
-          </p>
-        ) : null}
-        <div className="mt-1.5 flex items-center justify-between gap-2">
-          <StatusBadge status={place.status} />
-          {distance ? (
-            <span className="text-[11px] font-medium text-ink-500">{distance}</span>
-          ) : hasHours(place) ? (
-            <OpeningHours place={place} className="text-[11px]" />
-          ) : null}
         </div>
+
+        {/* Row 3: Opening hours */}
+        {hasHours(place) ? (
+          <div className="mt-1 text-xs">
+            <OpeningHours place={place} className="text-[11px]" />
+          </div>
+        ) : null}
       </div>
     </button>
   );
