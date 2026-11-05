@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, CalendarDays, Clock, MapPin, Navigation, Pencil, RotateCcw, SlidersHorizontal, Star, Wallet, X } from "lucide-react";
+import { ArrowRight, CalendarDays, ChevronDown, Clock, MapPin, Navigation, Pencil, RotateCcw, Star, Wallet, X } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
@@ -227,6 +227,9 @@ function PlaceRow({ place, onSelect }) {
 
 function ListContent({ places, status, onSelect, onReload, list }) {
   const { t } = useI18n();
+  const [expandedFilter, setExpandedFilter] = useState(null); // 'category' | 'sort' | null
+  const categoryLabel = t("filters.tags") === "Tag" ? "Kategori" : "Category";
+  const selectedTagObj = list.tags?.find((t) => String(t.id) === String(list.selectedTagIds?.[0]));
   const pills = [
     ["all", t("status.all"), list.counts.all],
     ["wishlist", t("status.wishlistLong"), list.counts.wishlist],
@@ -257,20 +260,196 @@ function ListContent({ places, status, onSelect, onReload, list }) {
 
   return (
     <div className="pb-8">
-      <div className="hide-scrollbar flex gap-2 overflow-x-auto px-4 pb-3 pt-1">
-        {pills.map(([key, label, count]) => (
+      <div className="sticky top-0 z-10 bg-cream">
+        <div className="hide-scrollbar flex items-center gap-2 overflow-x-auto px-4 pb-2.5 pt-1">
+          {/* Quick Status Pills: Semua, Ingin dikunjungi, Sudah dikunjungi */}
+          {pills.map(([key, label, count]) => (
+            <button
+              key={key}
+              type="button"
+              aria-pressed={list.activeStatus === key}
+              onClick={() => list.onStatusChange(key)}
+              className="chip h-8 shrink-0"
+            >
+              {label}
+              <span className="font-normal text-ink-500">{count}</span>
+            </button>
+          ))}
+
+          <div className="h-4 w-px shrink-0 bg-line" aria-hidden="true" />
+
+          {/* Category Button */}
           <button
-            key={key}
             type="button"
-            aria-pressed={list.activeStatus === key}
-            onClick={() => list.onStatusChange(key)}
-            className="chip shrink-0"
+            onClick={() => setExpandedFilter((prev) => (prev === "category" ? null : "category"))}
+            aria-expanded={expandedFilter === "category"}
+            className={`h-8 shrink-0 inline-flex items-center gap-1.5 rounded-full border px-3 text-xs font-bold transition-colors ${
+              list.selectedTagIds?.length > 0 || expandedFilter === "category"
+                ? "border-primary-700 bg-primary-50 text-primary-800"
+                : "border-line bg-white text-ink-800 hover:bg-chip"
+            }`}
           >
-            {label}
-            <span className="font-normal text-ink-500">{count}</span>
+            <span className="truncate max-w-[120px]">
+              {selectedTagObj ? selectedTagObj.name : categoryLabel}
+            </span>
+            <ChevronDown
+              className={`size-3.5 transition-transform duration-200 ${
+                expandedFilter === "category"
+                  ? "rotate-180 text-primary-800"
+                  : list.selectedTagIds?.length > 0
+                  ? "text-primary-800"
+                  : "text-ink-600"
+              }`}
+              aria-hidden="true"
+            />
           </button>
-        ))}
+
+          {/* Sort Button */}
+          <button
+            type="button"
+            onClick={() => setExpandedFilter((prev) => (prev === "sort" ? null : "sort"))}
+            aria-expanded={expandedFilter === "sort"}
+            className={`h-8 shrink-0 inline-flex items-center gap-1.5 rounded-full border px-3 text-xs font-bold transition-colors ${
+              expandedFilter === "sort" || list.sortBy !== "newest"
+                ? "border-primary-700 bg-primary-50 text-primary-800"
+                : "border-line bg-white text-ink-800 hover:bg-chip"
+            }`}
+          >
+            <span>{t(`sort.${list.sortBy}`)}</span>
+            <ChevronDown
+              className={`size-3.5 transition-transform duration-200 ${
+                expandedFilter === "sort"
+                  ? "rotate-180 text-primary-800"
+                  : list.sortBy !== "newest"
+                  ? "text-primary-800"
+                  : "text-ink-600"
+              }`}
+              aria-hidden="true"
+            />
+          </button>
+        </div>
+
+        {/* Expandable Filter Card: Category */}
+        {expandedFilter === "category" && (
+          <div className="px-4 pb-2.5">
+            <div className="rounded-2xl border border-line bg-white p-3.5 shadow-sm flex flex-col gap-2.5">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-ink-900">{categoryLabel}</span>
+                <div className="flex items-center gap-2">
+                  {list.selectedTagIds?.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => list.onTagChange("")}
+                      className="text-xs font-semibold text-primary-700 hover:text-primary-800"
+                    >
+                      {t("filters.reset")}
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => setExpandedFilter(null)}
+                    className="p-1 rounded-full text-ink-400 hover:bg-chip transition-colors"
+                    aria-label="Tutup"
+                  >
+                    <X className="size-3.5" />
+                  </button>
+                </div>
+              </div>
+
+              {list.tags?.length === 0 ? (
+                <p className="text-xs text-ink-500 py-1">{t("filters.noTags")}</p>
+              ) : (
+                <div className="flex flex-wrap gap-1.5 max-h-48 overflow-y-auto">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      list.onTagChange("");
+                      setExpandedFilter(null);
+                    }}
+                    className={`chip h-8 text-xs ${
+                      !list.selectedTagIds?.length
+                        ? "border-primary-700 bg-primary-50 text-primary-800 font-bold"
+                        : "border-line bg-white text-ink-700 hover:bg-chip"
+                    }`}
+                  >
+                    Semua
+                  </button>
+                  {list.tags?.map((tag) => {
+                    const isSelected =
+                      list.selectedTagIds?.includes(tag.id) ||
+                      String(list.selectedTagIds?.[0]) === String(tag.id);
+                    return (
+                      <button
+                        key={tag.id}
+                        type="button"
+                        onClick={() => {
+                          list.onTagChange(isSelected ? "" : tag.id);
+                          setExpandedFilter(null);
+                        }}
+                        className={`chip h-8 text-xs ${
+                          isSelected
+                            ? "border-primary-700 bg-primary-50 text-primary-800 font-bold"
+                            : "border-line bg-white text-ink-700 hover:bg-chip"
+                        }`}
+                      >
+                        {tag.name}
+                        {tag.count != null && (
+                          <span className="font-normal text-ink-400 text-[11px]">
+                            {tag.count}
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Expandable Filter Card: Sort */}
+        {expandedFilter === "sort" && (
+          <div className="px-4 pb-2.5">
+            <div className="rounded-2xl border border-line bg-white p-3.5 shadow-sm flex flex-col gap-2.5">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-ink-900">{t("filters.sort")}</span>
+                <button
+                  type="button"
+                  onClick={() => setExpandedFilter(null)}
+                  className="p-1 rounded-full text-ink-400 hover:bg-chip transition-colors"
+                  aria-label="Tutup"
+                >
+                  <X className="size-3.5" />
+                </button>
+              </div>
+
+              <div className="flex flex-wrap gap-1.5">
+                {["newest", "rating", "nearest", "name", "oldest"].map((sortKey) => {
+                  const isSelected = list.sortBy === sortKey;
+                  return (
+                    <button
+                      key={sortKey}
+                      type="button"
+                      onClick={() => {
+                        list.onSortChange({ target: { value: sortKey } });
+                        setExpandedFilter(null);
+                      }}
+                      className={`chip h-8 text-xs ${
+                        isSelected
+                          ? "border-primary-700 bg-primary-50 text-primary-800 font-bold"
+                          : "border-line bg-white text-ink-700 hover:bg-chip"
+                      }`}
+                    >
+                      {t(`sort.${sortKey}`)}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
+
       <div className="flex flex-col gap-2.5 px-4">{body}</div>
     </div>
   );
@@ -423,46 +602,13 @@ export default function MobilePlaceSheets({ mode = "explore", places, selected, 
         </button>
       </div>
     );
-  } else if (listMode) {
-    header = (
-      <div className="flex w-full items-center justify-between gap-2">
-        <p className="flex min-w-0 items-center gap-2 text-sm font-bold text-ink-900">
-          <MapPin className="size-4 shrink-0 text-primary-700" aria-hidden="true" />
-          <span className="truncate">
-            {status === "loading" ? t("app.loading") : t("home.restaurantsShown", { count: places.length })}
-          </span>
-        </p>
-        <div className="flex shrink-0 items-center gap-2">
-          <select
-            value={list.sortBy}
-            onChange={list.onSortChange}
-            aria-label={t("filters.sort")}
-            className="h-9 rounded-full border border-line bg-white px-3 text-xs font-bold text-ink-800 focus:border-primary-700 focus:outline-none"
-          >
-            <option value="newest">{t("sort.newest")}</option>
-            <option value="rating">{t("sort.rating")}</option>
-            <option value="nearest">{t("sort.nearest")}</option>
-            <option value="name">{t("sort.name")}</option>
-            <option value="oldest">{t("sort.oldest")}</option>
-          </select>
-          <button
-            type="button"
-            onClick={list.onOpenFilters}
-            aria-label={t("filters.sidebarTitle")}
-            title={t("filters.sidebarTitle")}
-            className="relative flex size-9 items-center justify-center rounded-full border border-line bg-white text-ink-700"
-          >
-            <SlidersHorizontal className="size-4" aria-hidden="true" />
-            {list.filtersActive ? <span className="absolute right-1 top-1 size-2 rounded-full bg-primary-700" /> : null}
-          </button>
-        </div>
-      </div>
-    );
   } else {
     header = (
       <p className="flex items-center gap-2 text-sm font-bold text-ink-900">
-        <MapPin className="size-4 text-primary-700" aria-hidden="true" />
-        {status === "loading" ? t("app.loading") : t("home.restaurantsShown", { count: places.length })}
+        <MapPin className="size-4 shrink-0 text-primary-700" aria-hidden="true" />
+        <span className="truncate">
+          {status === "loading" ? t("app.loading") : t("home.restaurantsShown", { count: places.length })}
+        </span>
       </p>
     );
   }
@@ -472,17 +618,14 @@ export default function MobilePlaceSheets({ mode = "explore", places, selected, 
   else if (listMode) content = <ListContent places={places} status={status} onSelect={onSelect} onReload={onReload} list={list} />;
   else content = <ExploreCards places={places} status={status} onSelect={onSelect} onReload={onReload} focusId={focusId} />;
 
-  const listOpen = listMode && !selected;
   return (
     <BottomSheet
       snap={snap}
       onSnapChange={setSnap}
       snaps={selected ? DETAIL_SNAPS : EXPLORE_SNAPS}
-      halfRatio={selected || listMode ? 0.5 : 0.42}
-      // A card is about 450px tall; opening the carousel beyond that would only add empty space.
-      fullMax={selected || listMode ? undefined : 560}
-      // The List tab leaves room for the floating search bar above its sheet.
-      topGap={listOpen ? 96 : undefined}
+      halfRatio={0.5}
+      // Cover the search bar when fully open while leaving a small top space
+      topGap={10}
       header={header}
       label={selected ? selected.name : listMode ? t("list.title") : t("home.nearbyTitle")}
       horizontal={!selected}

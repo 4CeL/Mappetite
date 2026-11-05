@@ -1,4 +1,4 @@
-﻿﻿"use client";
+"use client";
 
 import { useState, useMemo } from "react";
 import {
@@ -244,6 +244,21 @@ export default function ListPage() {
             onStatusChange: setActiveStatus,
             sortBy,
             onSortChange: handleSortChange,
+            tags,
+            selectedTagIds,
+            onTagChange: (tagVal) => {
+              if (!tagVal) {
+                setSelectedTagIds([]);
+              } else {
+                const matched = tags.find((t) => String(t.id) === String(tagVal));
+                setSelectedTagIds(matched ? [matched.id] : [tagVal]);
+              }
+            },
+            locations: locationOptions,
+            selectedLocations,
+            onLocationChange: (locName) => {
+              setSelectedLocations(locName ? [locName] : []);
+            },
             filtersActive: selectedTagIds.length + selectedLocations.length > 0,
             onOpenFilters: () => setMobileFilterOpen(true),
             onReset: handleClearAll,

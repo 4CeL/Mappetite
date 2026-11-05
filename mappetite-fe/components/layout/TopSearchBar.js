@@ -12,6 +12,7 @@ export default function TopSearchBar({
   onSearchChange,
   align = "left",
   className = "",
+  variant = "default",
 }) {
   const { user, signOut, changeLanguage } = useAuth();
   const { t, lang, setLanguage } = useI18n();
@@ -48,6 +49,91 @@ export default function TopSearchBar({
   }, []);
 
   const displayName = user?.username || "Stefanus";
+
+  const renderProfileDropdown = () => (
+    <div className="absolute right-0 top-full mt-2 z-50 w-52 rounded-2xl border border-line bg-white p-2 shadow-xl animate-in fade-in zoom-in-95 duration-100">
+      <div className="px-3 py-2 border-b border-line mb-1">
+        <p className="text-xs font-bold text-ink-900">{displayName}</p>
+        <p className="text-[11px] text-ink-500 truncate">{user?.email || "demo@mappetite.local"}</p>
+      </div>
+
+      <Link
+        href="/settings/"
+        onClick={() => setProfileOpen(false)}
+        className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs text-ink-700 hover:bg-[#F4F1EA] transition-colors"
+      >
+        <Settings className="size-4 text-ink-500" />
+        {t("topbar.profileSettings")}
+      </Link>
+
+      {/* Language Switch */}
+      <button
+        type="button"
+        onClick={() => {
+          const next = lang === "id" ? "en" : "id";
+          if (changeLanguage) changeLanguage(next);
+          else setLanguage(next);
+        }}
+        className="flex w-full items-center justify-between rounded-xl px-3 py-2 text-xs text-ink-700 hover:bg-[#F4F1EA] transition-colors"
+      >
+        <span className="flex items-center gap-2.5">
+          <Globe className="size-4 text-ink-500" />
+          {t("topbar.language")} ({lang.toUpperCase()})
+        </span>
+        <span className="text-[10px] font-bold text-primary-700 uppercase">
+          {t("topbar.switchTo", { lang: lang === "id" ? "EN" : "ID" })}
+        </span>
+      </button>
+
+      <div className="my-1 border-t border-line" />
+
+      <button
+        type="button"
+        onClick={() => {
+          setProfileOpen(false);
+          signOut();
+        }}
+        className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-medium text-danger-600 hover:bg-danger-50 transition-colors"
+      >
+        <LogOut className="size-4 text-danger-600" />
+        {t("auth.logout")}
+      </button>
+    </div>
+  );
+
+  if (variant === "floating") {
+    return (
+      <header
+        className={`w-full h-13 sm:h-12 flex items-center gap-2 rounded-full bg-white pl-3.5 pr-3.5 shadow-md border border-[#E7E2D5]/80 select-none ${className}`}
+      >
+        <Search className="size-4 sm:size-5 text-ink-500 shrink-0" />
+        <input
+          ref={searchInputRef}
+          type="search"
+          value={searchQuery}
+          onChange={(e) => onSearchChange?.(e.target.value)}
+          placeholder={t("topbar.searchPlaceholder")}
+          className="flex-1 min-w-0 bg-transparent border-0 py-1 px-1.5 text-sm sm:text-sm text-ink-900 placeholder:text-ink-400 focus:outline-none focus:ring-0"
+        />
+
+        <div className="flex items-center gap-1 shrink-0">
+
+          <div ref={profileMenuRef} className="relative">
+            <button
+              type="button"
+              onClick={() => setProfileOpen(!profileOpen)}
+              className="size-8 rounded-full bg-visited-700 text-white flex items-center justify-center text-xs font-bold uppercase overflow-hidden shadow-xs hover:opacity-90 transition-opacity"
+              aria-label={displayName}
+            >
+              {displayName.charAt(0)}
+            </button>
+
+            {profileOpen && renderProfileDropdown()}
+          </div>
+        </div>
+      </header>
+    );
+  }
 
   return (
     <header
@@ -96,56 +182,7 @@ export default function TopSearchBar({
             <ChevronDown className="size-3.5 text-ink-500 hidden sm:inline" />
           </button>
 
-          {profileOpen && (
-            <div className="absolute right-0 top-full mt-2 z-50 w-52 rounded-2xl border border-line bg-white p-2 shadow-xl animate-in fade-in zoom-in-95 duration-100">
-              <div className="px-3 py-2 border-b border-line mb-1">
-                <p className="text-xs font-bold text-ink-900">{displayName}</p>
-                <p className="text-[11px] text-ink-500 truncate">{user?.email || "demo@mappetite.local"}</p>
-              </div>
-
-              <Link
-                href="/settings/"
-                onClick={() => setProfileOpen(false)}
-                className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs text-ink-700 hover:bg-[#F4F1EA] transition-colors"
-              >
-                <Settings className="size-4 text-ink-500" />
-                {t("topbar.profileSettings")}
-              </Link>
-
-              {/* Language Switch */}
-              <button
-                type="button"
-                onClick={() => {
-                  const next = lang === "id" ? "en" : "id";
-                  if (changeLanguage) changeLanguage(next);
-                  else setLanguage(next);
-                }}
-                className="flex w-full items-center justify-between rounded-xl px-3 py-2 text-xs text-ink-700 hover:bg-[#F4F1EA] transition-colors"
-              >
-                <span className="flex items-center gap-2.5">
-                  <Globe className="size-4 text-ink-500" />
-                  {t("topbar.language")} ({lang.toUpperCase()})
-                </span>
-                <span className="text-[10px] font-bold text-primary-700 uppercase">
-                  {t("topbar.switchTo", { lang: lang === "id" ? "EN" : "ID" })}
-                </span>
-              </button>
-
-              <div className="my-1 border-t border-line" />
-
-              <button
-                type="button"
-                onClick={() => {
-                  setProfileOpen(false);
-                  signOut();
-                }}
-                className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-medium text-danger-600 hover:bg-danger-50 transition-colors"
-              >
-                <LogOut className="size-4 text-danger-600" />
-                {t("auth.logout")}
-              </button>
-            </div>
-          )}
+          {profileOpen && renderProfileDropdown()}
         </div>
       </div>
     </header>

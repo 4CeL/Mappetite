@@ -1,4 +1,4 @@
-﻿﻿﻿"use client";
+﻿﻿"use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
@@ -605,9 +605,9 @@ export default function HomePage() {
           <div className="pointer-events-none absolute inset-x-4 top-4 z-20 lg:hidden">
             <div className="pointer-events-auto">
               <TopSearchBar
+                variant="floating"
                 searchQuery={searchQuery}
                 onSearchChange={setSearchQuery}
-                className="rounded-full shadow-lg border-0 bg-white"
               />
             </div>
           </div>

@@ -46,9 +46,9 @@ export default function MobileListMap({ places, status, onReload, searchQuery, o
       <div className="pointer-events-none absolute inset-x-4 top-4 z-20">
         <div className="pointer-events-auto">
           <TopSearchBar
+            variant="floating"
             searchQuery={searchQuery}
             onSearchChange={onSearchChange}
-            className="rounded-full shadow-lg border-0 bg-white"
           />
         </div>
       </div>
